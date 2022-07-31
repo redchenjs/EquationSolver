@@ -18,38 +18,54 @@ using namespace std;
 -1  -2   3   1  11
  0   0   1   1   2
 
- x1 = -3
- x2 = -2
+ x0 = -3
+ x1 = -2
+ x2 =  1
  x3 =  1
- x4 =  1
+*/
+
+/*
+ 1   1   1   1
+ 0   1   2   2
+ 0  -1  -4  -2
+ 3   2   1  -1
+
+ x0 = -2
+ x1 = -3
+ x2 = -1
+ x3 =  0
 */
 
 double data[7][7] = {
-    [0] = { 2,  -3,   1,   5,   6,   0,   0},
-    [1] = {-3,   1,   2,  -4,   5,   0,   0},
-    [2] = {-1,  -2,   3,   1,  11,   0,   0},
-    [3] = { 0,   0,   1,   1,   2,   0,   0},
+    [0] = { 1,   1,   1,   1,   0,   0,   0},
+    [1] = { 0,   1,   2,   2,   1,   0,   0},
+    [2] = { 0,  -1,  -4,  -2,   1,   0,   0},
+    [3] = { 3,   2,   1,  -1,  -1,   0,   0},
     [4] = { 0,   0,   0,   0,   0,   0,   0},
     [5] = { 0,   0,   0,   0,   0,   0,   0},
     [6] = { 0,   0,   0,   0,   0,   0,   0},
 };
 
-void print_mat(double C[7][7])
+void print_mat(bool param6, double C[7][7])
 {
+    int n = param6 ? 6 : 4;
+
     printf("======================================================\n");
-    for (int p = 0; p < 7; p++) {
-        for (int q = 0; q < 7; q++) {
+    for (int p = 0; p < n; p++) {
+        for (int q = 0; q < n + 1; q++) {
             printf("%6.1f\t", C[p][q]);
         }
         printf("\n");
     }
 }
 
-void print_mat(int i, int j, int k, double C[7][7])
+void print_mat(int i, int j, int k, bool param6, double C[7][7])
 {
+    int n = param6 ? 6 : 4;
+
     printf("====================================================== i = %d j = %d k = %d\n", i, j, k);
-    for (int p = 0; p < 7; p++) {
-        for (int q = 0; q < 7; q++) {
+    for (int p = 0; p < n; p++) {
+        for (int q = 0; q < n + 1; q++) {
             printf("%6.1f\t", C[p][q]);
         }
         printf("\n");
@@ -83,7 +99,7 @@ void method_gja(bool param6, bool pivoting, double C[7][7])
                     m = i;
                 }
             }
-            print_mat(m, 0, k, C);
+            print_mat(m, 0, k, param6, C);
             // swap rows k and m
             if (m != k) {
                 for (int j = 0; j < n + 1; j++) {
@@ -91,7 +107,7 @@ void method_gja(bool param6, bool pivoting, double C[7][7])
                     C[k][j] = C[m][j];
                     C[m][j] = C[6][j];
                 }
-                print_mat(m, 1, k, C);
+                print_mat(m, 1, k, param6, C);
             }
         }
 
@@ -113,7 +129,7 @@ void method_gja(bool param6, bool pivoting, double C[7][7])
         }
 
         printf("D:");
-        print_mat(D);
+        print_mat(param6, D);
 
         for (int i = 0; i < n; i++) {
             for (int j = 0; j < n + 1; j++) {
@@ -123,7 +139,7 @@ void method_gja(bool param6, bool pivoting, double C[7][7])
     }
 
     printf("C:");
-    print_mat(C);
+    print_mat(param6, C);
     print_res(param6, C);
 }
 
@@ -144,7 +160,7 @@ void method_dfa(bool param6, bool pivoting, double C[7][7])
                     m = i;
                 }
             }
-            print_mat(m, 0, k, C);
+            print_mat(m, 0, k, param6, C);
             // swap rows k and m
             if (m != k) {
                 for (int j = 0; j < n + 1; j++) {
@@ -152,7 +168,7 @@ void method_dfa(bool param6, bool pivoting, double C[7][7])
                     C[k][j] = C[m][j];
                     C[m][j] = C[6][j];
                 }
-                print_mat(m, 1, k, C);
+                print_mat(m, 1, k, param6, C);
             }
         }
 
@@ -174,7 +190,7 @@ void method_dfa(bool param6, bool pivoting, double C[7][7])
         }
 
         printf("D:");
-        print_mat(D);
+        print_mat(param6, D);
 
         for (int i = 0; i < n; i++) {
             for (int j = 0; j < n + 1; j++) {
@@ -184,14 +200,14 @@ void method_dfa(bool param6, bool pivoting, double C[7][7])
     }
 
     printf("C:");
-    print_mat(C);
+    print_mat(param6, C);
     print_res(param6, C);
 }
 
 int main(int argc, char **argv)
 {
-    // method_gja(false, true, data);
-    method_dfa(false, true, data);
+    method_gja(false, true, data);
+    // method_dfa(false, true, data);
 
     return 0;
 }
