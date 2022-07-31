@@ -1,5 +1,5 @@
-Two-step Division-free Gaussian Elimination
-===========================================
+Gauss-Jordan elimination algorithm
+==================================
 
 <img src="docs/test.png">
 
