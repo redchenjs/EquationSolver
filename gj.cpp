@@ -12,6 +12,20 @@
 
 using namespace std;
 
+#define LOG_COLOR_BLACK   "30"
+#define LOG_COLOR_RED     "31"
+#define LOG_COLOR_GREEN   "32"
+#define LOG_COLOR_BROWN   "33"
+#define LOG_COLOR_BLUE    "34"
+#define LOG_COLOR_PURPLE  "35"
+#define LOG_COLOR_CYAN    "36"
+#define LOG_COLOR(COLOR)  "\033[0;" COLOR "m"
+#define LOG_BOLD(COLOR)   "\033[1;" COLOR "m"
+#define LOG_RESET_COLOR   "\033[0m"
+#define LOG_COLOR_E       LOG_COLOR(LOG_COLOR_RED)
+#define LOG_COLOR_W       LOG_COLOR(LOG_COLOR_BROWN)
+#define LOG_COLOR_I       LOG_COLOR(LOG_COLOR_GREEN)
+
 /*
  2  -3   1   5   6
 -3   1   2  -4   5
@@ -25,8 +39,8 @@ using namespace std;
 */
 
 /*
- 1   1   1   1
  0   1   2   2
+ 1   1   1   1
  0  -1  -4  -2
  3   2   1  -1
 
@@ -37,8 +51,8 @@ using namespace std;
 */
 
 double data[7][7] = {
-    [0] = { 1,   1,   1,   1,   0,   0,   0},
-    [1] = { 0,   1,   2,   2,   1,   0,   0},
+    [0] = { 0,   1,   2,   2,   1,   0,   0},
+    [1] = { 1,   1,   1,   1,   0,   0,   0},
     [2] = { 0,  -1,  -4,  -2,   1,   0,   0},
     [3] = { 3,   2,   1,  -1,  -1,   0,   0},
     [4] = { 0,   0,   0,   0,   0,   0,   0},
@@ -46,29 +60,54 @@ double data[7][7] = {
     [6] = { 0,   0,   0,   0,   0,   0,   0},
 };
 
-void print_mat(bool param6, double C[7][7])
+void print_mat(char idx, bool param6, double C[7][7])
 {
     int n = param6 ? 6 : 4;
 
-    printf("======================================================\n");
+    printf("--------------------------------MATRIX %c--------------------------- n = %d\n", idx, n);
     for (int p = 0; p < n; p++) {
-        for (int q = 0; q < n + 1; q++) {
-            printf("%6.1f\t", C[p][q]);
+        printf(LOG_COLOR_W "r%d ", p);
+        printf(LOG_RESET_COLOR "|");
+        for (int q = 0; q < n; q++) {
+            printf(LOG_COLOR_I "%8.1f\t", C[p][q]);
         }
-        printf("\n");
+        printf(LOG_RESET_COLOR "|");
+        printf(LOG_COLOR_W "%8.1f", C[p][n]);
+        printf(LOG_RESET_COLOR "\n");
     }
 }
 
-void print_mat(int i, int j, int k, bool param6, double C[7][7])
+void print_mat(char idx, int k, bool param6, double C[7][7])
 {
     int n = param6 ? 6 : 4;
 
-    printf("====================================================== i = %d j = %d k = %d\n", i, j, k);
+    printf("--------------------------------MATRIX %c--------------------- n = %d k = %d\n", idx, n, k);
     for (int p = 0; p < n; p++) {
-        for (int q = 0; q < n + 1; q++) {
-            printf("%6.1f\t", C[p][q]);
+        printf(LOG_COLOR_W "r%d ", p);
+        printf(LOG_RESET_COLOR "|");
+        for (int q = 0; q < n; q++) {
+            printf(LOG_COLOR_I "%8.1f\t", C[p][q]);
         }
-        printf("\n");
+        printf(LOG_RESET_COLOR "|");
+        printf(LOG_COLOR_W "%8.1f", C[p][n]);
+        printf(LOG_RESET_COLOR "\n");
+    }
+}
+
+void print_mat(char idx, int k, int m, bool param6, double C[7][7])
+{
+    int n = param6 ? 6 : 4;
+
+    printf("--------------------------------MATRIX %c--------------- n = %d k = %d m = %d\n", idx, n, k, m);
+    for (int p = 0; p < n; p++) {
+        printf(LOG_COLOR_W "r%d ", p);
+        printf(LOG_RESET_COLOR "|");
+        for (int q = 0; q < n; q++) {
+            printf(LOG_COLOR_E "%8.1f\t", C[p][q]);
+        }
+        printf(LOG_RESET_COLOR "|");
+        printf(LOG_COLOR_W "%8.1f", C[p][n]);
+        printf(LOG_RESET_COLOR "\n");
     }
 }
 
@@ -76,9 +115,10 @@ void print_res(bool param6, double C[7][7])
 {
     int n = param6 ? 6 : 4;
 
-    printf("======================================================\n");
+    printf("--------------------------------RESULT-----------------------------------\n");
     for (int i = 0; i < n; i++) {
-        printf("x%d = %6.1f\n", i, C[i][n] / C[i][i]);
+        printf(LOG_COLOR_I "x%d = %8.1f", i, C[i][n] / C[i][i]);
+        printf(LOG_RESET_COLOR "\n");
     }
 }
 
@@ -86,6 +126,8 @@ void method_gja(bool param6, bool pivoting, double C[7][7])
 {
     int n = param6 ? 6 : 4;
     double D[7][7] = { 0 };
+
+    print_mat('I', param6, C);
 
     for (int k = 0; k < n; k++) {
         if (pivoting) {
@@ -99,15 +141,18 @@ void method_gja(bool param6, bool pivoting, double C[7][7])
                     m = i;
                 }
             }
-            print_mat(m, 0, k, param6, C);
+
             // swap rows k and m
             if (m != k) {
+                print_mat('A', k, m, param6, C);
+
                 for (int j = 0; j < n + 1; j++) {
                     C[6][j] = C[k][j];
                     C[k][j] = C[m][j];
                     C[m][j] = C[6][j];
                 }
-                print_mat(m, 1, k, param6, C);
+
+                print_mat('B', k, m, param6, C);
             }
         }
 
@@ -128,18 +173,15 @@ void method_gja(bool param6, bool pivoting, double C[7][7])
             }
         }
 
-        printf("D:");
-        print_mat(param6, D);
-
         for (int i = 0; i < n; i++) {
             for (int j = 0; j < n + 1; j++) {
                 C[i][j] = D[i][j];
             }
         }
+
+        print_mat('C', k, param6, C);
     }
 
-    printf("C:");
-    print_mat(param6, C);
     print_res(param6, C);
 }
 
@@ -147,6 +189,8 @@ void method_dfa(bool param6, bool pivoting, double C[7][7])
 {
     int n = param6 ? 6 : 4;
     double D[7][7] = { 0 };
+
+    print_mat('I', param6, C);
 
     for (int k = 0; k < n; k++) {
         if (pivoting) {
@@ -160,15 +204,18 @@ void method_dfa(bool param6, bool pivoting, double C[7][7])
                     m = i;
                 }
             }
-            print_mat(m, 0, k, param6, C);
+
             // swap rows k and m
             if (m != k) {
+                print_mat('A', k, m, param6, C);
+
                 for (int j = 0; j < n + 1; j++) {
                     C[6][j] = C[k][j];
                     C[k][j] = C[m][j];
                     C[m][j] = C[6][j];
                 }
-                print_mat(m, 1, k, param6, C);
+
+                print_mat('B', k, m, param6, C);
             }
         }
 
@@ -189,25 +236,22 @@ void method_dfa(bool param6, bool pivoting, double C[7][7])
             }
         }
 
-        printf("D:");
-        print_mat(param6, D);
-
         for (int i = 0; i < n; i++) {
             for (int j = 0; j < n + 1; j++) {
                 C[i][j] = D[i][j];
             }
         }
+
+        print_mat('C', k, param6, C);
     }
 
-    printf("C:");
-    print_mat(param6, C);
     print_res(param6, C);
 }
 
 int main(int argc, char **argv)
 {
-    method_gja(false, true, data);
-    // method_dfa(false, true, data);
+    // method_gja(false, true, data);
+    method_dfa(false, true, data);
 
     return 0;
 }
