@@ -140,11 +140,24 @@ void scale_mat(int b, bool param6, double C[7][7])
     for (int p = 0; p < n; p++) {
         for (int q = 0; q < n; q++) {
             if (b >= 0) {
-                C[p][q] = (int64_t)C[p][q] << abs(b);
+                C[p][q] = C[p][q] * pow(2, b);
             } else {
-                C[p][q] = (int64_t)C[p][q] >> abs(b);
+                C[p][q] = C[p][q] / pow(2, b);
             }
         }
+    }
+}
+
+void scale_mat(int a, int b, bool param6, double C[7][7])
+{
+    int n = param6 ? 6 : 4;
+
+    for (int p = 0; p < n; p++) {
+        for (int q = 0; q < n - 1; q++) {
+
+            C[p][q] = C[p][q] * pow(2, a);
+        }
+        C[p][n] = C[p][n] * pow(2, b);
     }
 }
 
@@ -222,7 +235,7 @@ void method_dfa(bool param6, bool pivoting, double C[7][7])
         if (pivoting) {
             // find column max
             int m = k;
-            int t = fabs(C[k][k]);
+            int64_t t = fabs(C[k][k]);
 
             for (int i = k + 1; i < n; i++) {
                 if (fabs(C[i][k]) > t) {
@@ -245,9 +258,9 @@ void method_dfa(bool param6, bool pivoting, double C[7][7])
             }
         }
 
-        int M = C[k][k];
+        int64_t M = C[k][k];
         for (int i = 0; i < n; i++) {
-            int L = C[i][k];
+            int64_t L = C[i][k];
 
             if (k == i) {
                 // row k is not modified
@@ -279,14 +292,14 @@ void method_dfa2(bool param6, bool pivoting, double C[7][7])
     int n = param6 ? 6 : 4;
     int64_t D[7][7] = { 0 };
 
-    scale_mat(8, param6, C);
+    scale_mat(0, 3, param6, C);
     print_mat("DFA2", param6, C);
 
     for (int k = 0; k < n; k++) {
         if (pivoting) {
             // find column max
             int m = k;
-            int t = fabs(C[k][k]);
+            int64_t t = fabs(C[k][k]);
 
             for (int i = k + 1; i < n; i++) {
                 if (fabs(C[i][k]) > t) {
@@ -309,16 +322,16 @@ void method_dfa2(bool param6, bool pivoting, double C[7][7])
             }
         }
 
-        int M = C[k][k];
         int B = 0;
-        int TM = abs(M);
+        int64_t M = C[k][k];
+        int64_t TM = abs(M);
 
         while (TM >>= 1) {
             B++;
         }
 
         for (int i = 0; i < n; i++) {
-            int L = C[i][k];
+            int64_t L = C[i][k];
 
             if (k == i) {
                 // row k is not modified
@@ -343,7 +356,6 @@ void method_dfa2(bool param6, bool pivoting, double C[7][7])
         print_mat('C', k, param6, C);
     }
 
-    scale_mat(-8, param6, C);
     print_res(0, param6, C);
 }
 
