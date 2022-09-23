@@ -23,11 +23,9 @@ using namespace std;
 #define LOG_COLOR_W       LOG_COLOR(LOG_COLOR_BROWN)
 #define LOG_COLOR_I       LOG_COLOR(LOG_COLOR_GREEN)
 
-void EquationSolver::print_mat(const char *str, bool param6, double C[7][7])
+void EquationSolver::print_mat(const char *str, int n, double C[7][7])
 {
 #ifdef DEBUG
-    int n = param6 ? 6 : 4;
-
     printf("------------------------------- %-6s ---------------------------- n = %d\n", str, n);
     for (int p = 0; p < n; p++) {
         printf(LOG_COLOR_W "r%d ", p);
@@ -42,11 +40,9 @@ void EquationSolver::print_mat(const char *str, bool param6, double C[7][7])
 #endif
 }
 
-void EquationSolver::print_mat(char idx, int k, bool param6, double C[7][7])
+void EquationSolver::print_mat(char idx, int k, int n, double C[7][7])
 {
 #ifdef DEBUG
-    int n = param6 ? 6 : 4;
-
     printf("------------------------------- MATRIX %c -------------------- n = %d k = %d\n", idx, n, k);
     for (int p = 0; p < n; p++) {
         printf(LOG_COLOR_W "r%d ", p);
@@ -61,11 +57,9 @@ void EquationSolver::print_mat(char idx, int k, bool param6, double C[7][7])
 #endif
 }
 
-void EquationSolver::print_mat(char idx, int k, int m, bool param6, double C[7][7])
+void EquationSolver::print_mat(char idx, int k, int m, int n, double C[7][7])
 {
 #ifdef DEBUG
-    int n = param6 ? 6 : 4;
-
     printf("------------------------------- MATRIX %c -------------- n = %d k = %d m = %d\n", idx, n, k, m);
     for (int p = 0; p < n; p++) {
         printf(LOG_COLOR_W "r%d ", p);
@@ -80,11 +74,9 @@ void EquationSolver::print_mat(char idx, int k, int m, bool param6, double C[7][
 #endif
 }
 
-void EquationSolver::print_res(bool param6, double C[7][7])
+void EquationSolver::print_res(int n, double C[7][7])
 {
 #ifdef DEBUG
-    int n = param6 ? 6 : 4;
-
     printf("------------------------------- RESULT ----------------------------------\n");
     for (int i = 0; i < n; i++) {
         printf(LOG_COLOR_I "x%d = %8.1f", i, C[i][n] / C[i][i]);
@@ -93,11 +85,9 @@ void EquationSolver::print_res(bool param6, double C[7][7])
 #endif
 }
 
-void EquationSolver::print_res(bool param6, double C[7][7], int scale)
+void EquationSolver::print_res(int n, double C[7][7], int scale)
 {
 #ifdef DEBUG
-    int n = param6 ? 6 : 4;
-
     printf("------------------------------- RESULT ----------------------------------\n");
     for (int i = 0; i < n; i++) {
         printf(LOG_COLOR_I "x%d = %8.1f", i, C[i][n] / C[i][i] / pow(2.0, scale));
@@ -106,38 +96,35 @@ void EquationSolver::print_res(bool param6, double C[7][7], int scale)
 #endif
 }
 
-void EquationSolver::method_gja(bool param6, bool pivoting)
+void EquationSolver::method_gja(int n)
 {
-    int n = param6 ? 6 : 4;
     double D[7][7] = { 0.0 };
 
-    print_mat("GJA", param6, C);
+    print_mat("GJA", n, C);
 
     for (int k = 0; k < n; k++) {
-        if (pivoting) {
-            // find column max
-            int m = k;
-            double t = fabs(C[k][k]);
+        // find column max
+        int m = k;
+        double t = fabs(C[k][k]);
 
-            for (int i = k + 1; i < n; i++) {
-                if (fabs(C[i][k]) > t) {
-                    t = fabs(C[i][k]);
-                    m = i;
-                }
+        for (int i = k + 1; i < n; i++) {
+            if (fabs(C[i][k]) > t) {
+                t = fabs(C[i][k]);
+                m = i;
+            }
+        }
+
+        // swap rows k and m
+        if (m != k) {
+            print_mat('A', k, m, n, C);
+
+            for (int j = 0; j < n + 1; j++) {
+                C[6][j] = C[k][j];
+                C[k][j] = C[m][j];
+                C[m][j] = C[6][j];
             }
 
-            // swap rows k and m
-            if (m != k) {
-                print_mat('A', k, m, param6, C);
-
-                for (int j = 0; j < n + 1; j++) {
-                    C[6][j] = C[k][j];
-                    C[k][j] = C[m][j];
-                    C[m][j] = C[6][j];
-                }
-
-                print_mat('B', k, m, param6, C);
-            }
+            print_mat('B', k, m, n, C);
         }
 
         double M = C[k][k];
@@ -164,44 +151,41 @@ void EquationSolver::method_gja(bool param6, bool pivoting)
             }
         }
 
-        print_mat('C', k, param6, C);
+        print_mat('C', k, n, C);
     }
 
-    print_res(param6, C);
+    print_res(n, C);
 }
 
-void EquationSolver::method_dfa(bool param6, bool pivoting, int scale)
+void EquationSolver::method_dfa(int n, int scale)
 {
-    int n = param6 ? 6 : 4;
     int64_t D[7][7] = { 0 };
 
-    print_mat("DFA", param6, C);
+    print_mat("DFA", (n == 6), C);
 
     for (int k = 0; k < n; k++) {
-        if (pivoting) {
-            // find column max
-            int m = k;
-            int64_t t = fabs(C[k][k]);
+        // find column max
+        int m = k;
+        int64_t t = fabs(C[k][k]);
 
-            for (int i = k + 1; i < n; i++) {
-                if (fabs(C[i][k]) > t) {
-                    t = fabs(C[i][k]);
-                    m = i;
-                }
+        for (int i = k + 1; i < n; i++) {
+            if (fabs(C[i][k]) > t) {
+                t = fabs(C[i][k]);
+                m = i;
+            }
+        }
+
+        // swap rows k and m
+        if (m != k) {
+            print_mat('A', k, m, n, C);
+
+            for (int j = 0; j < n + 1; j++) {
+                C[6][j] = C[k][j];
+                C[k][j] = C[m][j];
+                C[m][j] = C[6][j];
             }
 
-            // swap rows k and m
-            if (m != k) {
-                print_mat('A', k, m, param6, C);
-
-                for (int j = 0; j < n + 1; j++) {
-                    C[6][j] = C[k][j];
-                    C[k][j] = C[m][j];
-                    C[m][j] = C[6][j];
-                }
-
-                print_mat('B', k, m, param6, C);
-            }
+            print_mat('B', k, m, n, C);
         }
 
         int64_t M = C[k][k];
@@ -228,44 +212,41 @@ void EquationSolver::method_dfa(bool param6, bool pivoting, int scale)
             }
         }
 
-        print_mat('C', k, param6, C);
+        print_mat('C', k, n, C);
     }
 
-    print_res(param6, C, scale);
+    print_res(n, C, scale);
 }
 
-void EquationSolver::method_dfa2(bool param6, bool pivoting, int scale)
+void EquationSolver::method_dfa2(int n, int scale)
 {
-    int n = param6 ? 6 : 4;
     int64_t D[7][7] = { 0 };
 
-    print_mat("DFA2", param6, C);
+    print_mat("DFA2", n, C);
 
     for (int k = 0; k < n; k++) {
-        if (pivoting) {
-            // find column max
-            int m = k;
-            int64_t t = fabs(C[k][k]);
+        // find column max
+        int m = k;
+        int64_t t = fabs(C[k][k]);
 
-            for (int i = k + 1; i < n; i++) {
-                if (fabs(C[i][k]) > t) {
-                    t = fabs(C[i][k]);
-                    m = i;
-                }
+        for (int i = k + 1; i < n; i++) {
+            if (fabs(C[i][k]) > t) {
+                t = fabs(C[i][k]);
+                m = i;
+            }
+        }
+
+        // swap rows k and m
+        if (m != k) {
+            print_mat('A', k, m, n, C);
+
+            for (int j = 0; j < n + 1; j++) {
+                C[6][j] = C[k][j];
+                C[k][j] = C[m][j];
+                C[m][j] = C[6][j];
             }
 
-            // swap rows k and m
-            if (m != k) {
-                print_mat('A', k, m, param6, C);
-
-                for (int j = 0; j < n + 1; j++) {
-                    C[6][j] = C[k][j];
-                    C[k][j] = C[m][j];
-                    C[m][j] = C[6][j];
-                }
-
-                print_mat('B', k, m, param6, C);
-            }
+            print_mat('B', k, m, n, C);
         }
 
         int B = 0;
@@ -299,44 +280,41 @@ void EquationSolver::method_dfa2(bool param6, bool pivoting, int scale)
             }
         }
 
-        print_mat('C', k, param6, C);
+        print_mat('C', k, n, C);
     }
 
-    print_res(param6, C, scale);
+    print_res(n, C, scale);
 }
 
-void EquationSolver::method_dfa2s(bool param6, bool pivoting, int scale)
+void EquationSolver::method_dfa2s(int n, int scale)
 {
-    int n = param6 ? 6 : 4;
     int64_t D[7][7] = { 0 };
 
-    print_mat("DFA2-S", param6, C);
+    print_mat("DFA2-S", n, C);
 
     for (int k = 0; k < n; k++) {
-        if (pivoting) {
-            // find column max
-            int m = k;
-            int64_t t = fabs(C[k][k]);
+        // find column max
+        int m = k;
+        int64_t t = fabs(C[k][k]);
 
-            for (int i = k + 1; i < n; i++) {
-                if (fabs(C[i][k]) > t) {
-                    t = fabs(C[i][k]);
-                    m = i;
-                }
+        for (int i = k + 1; i < n; i++) {
+            if (fabs(C[i][k]) > t) {
+                t = fabs(C[i][k]);
+                m = i;
+            }
+        }
+
+        // swap rows k and m
+        if (m != k) {
+            print_mat('A', k, m, n, C);
+
+            for (int j = 0; j < n + 1; j++) {
+                C[6][j] = C[k][j];
+                C[k][j] = C[m][j];
+                C[m][j] = C[6][j];
             }
 
-            // swap rows k and m
-            if (m != k) {
-                print_mat('A', k, m, param6, C);
-
-                for (int j = 0; j < n + 1; j++) {
-                    C[6][j] = C[k][j];
-                    C[k][j] = C[m][j];
-                    C[m][j] = C[6][j];
-                }
-
-                print_mat('B', k, m, param6, C);
-            }
+            print_mat('B', k, m, n, C);
         }
 
         int B = 0;
@@ -370,44 +348,41 @@ void EquationSolver::method_dfa2s(bool param6, bool pivoting, int scale)
             }
         }
 
-        print_mat('C', k, param6, C);
+        print_mat('C', k, n, C);
     }
 
-    print_res(param6, C, scale);
+    print_res(n, C, scale);
 }
 
-void EquationSolver::method_dfa3(bool param6, bool pivoting, int scale)
+void EquationSolver::method_dfa3(int n, int scale)
 {
-    int n = param6 ? 6 : 4;
     int64_t D[7][7] = { 0 };
 
-    print_mat("DFA3", param6, C);
+    print_mat("DFA3", n, C);
 
     for (int k = 0; k < n; k++) {
-        if (pivoting) {
-            // find column max
-            int m = k;
-            int64_t t = fabs(C[k][k]);
+        // find column max
+        int m = k;
+        int64_t t = fabs(C[k][k]);
 
-            for (int i = k + 1; i < n; i++) {
-                if (fabs(C[i][k]) > t) {
-                    t = fabs(C[i][k]);
-                    m = i;
-                }
+        for (int i = k + 1; i < n; i++) {
+            if (fabs(C[i][k]) > t) {
+                t = fabs(C[i][k]);
+                m = i;
+            }
+        }
+
+        // swap rows k and m
+        if (m != k) {
+            print_mat('A', k, m, n, C);
+
+            for (int j = 0; j < n + 1; j++) {
+                C[6][j] = C[k][j];
+                C[k][j] = C[m][j];
+                C[m][j] = C[6][j];
             }
 
-            // swap rows k and m
-            if (m != k) {
-                print_mat('A', k, m, param6, C);
-
-                for (int j = 0; j < n + 1; j++) {
-                    C[6][j] = C[k][j];
-                    C[k][j] = C[m][j];
-                    C[m][j] = C[6][j];
-                }
-
-                print_mat('B', k, m, param6, C);
-            }
+            print_mat('B', k, m, n, C);
         }
 
         int B = 0;
@@ -450,44 +425,41 @@ void EquationSolver::method_dfa3(bool param6, bool pivoting, int scale)
             }
         }
 
-        print_mat('C', k, param6, C);
+        print_mat('C', k, n, C);
     }
 
-    print_res(param6, C, scale);
+    print_res(n, C, scale);
 }
 
-void EquationSolver::method_dfa3s(bool param6, bool pivoting, int scale)
+void EquationSolver::method_dfa3s(int n, int scale)
 {
-    int n = param6 ? 6 : 4;
     int64_t D[7][7] = { 0 };
 
-    print_mat("DFA3-S", param6, C);
+    print_mat("DFA3-S", n, C);
 
     for (int k = 0; k < n; k++) {
-        if (pivoting) {
-            // find column max
-            int m = k;
-            int64_t t = fabs(C[k][k]);
+        // find column max
+        int m = k;
+        int64_t t = fabs(C[k][k]);
 
-            for (int i = k + 1; i < n; i++) {
-                if (fabs(C[i][k]) > t) {
-                    t = fabs(C[i][k]);
-                    m = i;
-                }
+        for (int i = k + 1; i < n; i++) {
+            if (fabs(C[i][k]) > t) {
+                t = fabs(C[i][k]);
+                m = i;
+            }
+        }
+
+        // swap rows k and m
+        if (m != k) {
+            print_mat('A', k, m, n, C);
+
+            for (int j = 0; j < n + 1; j++) {
+                C[6][j] = C[k][j];
+                C[k][j] = C[m][j];
+                C[m][j] = C[6][j];
             }
 
-            // swap rows k and m
-            if (m != k) {
-                print_mat('A', k, m, param6, C);
-
-                for (int j = 0; j < n + 1; j++) {
-                    C[6][j] = C[k][j];
-                    C[k][j] = C[m][j];
-                    C[m][j] = C[6][j];
-                }
-
-                print_mat('B', k, m, param6, C);
-            }
+            print_mat('B', k, m, n, C);
         }
 
         int B = 0;
@@ -530,10 +502,10 @@ void EquationSolver::method_dfa3s(bool param6, bool pivoting, int scale)
             }
         }
 
-        print_mat('C', k, param6, C);
+        print_mat('C', k, n, C);
     }
 
-    print_res(param6, C, scale);
+    print_res(n, C, scale);
 }
 
 void EquationSolver::load_data(const int64_t i64EqualCoeff[7][7], int iParaNum, int scale)
