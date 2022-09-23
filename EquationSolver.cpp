@@ -28,7 +28,7 @@ void EquationSolver::print_mat(const char *str, bool param6, double C[7][7])
 #ifdef DEBUG
     int n = param6 ? 6 : 4;
 
-    printf("------------------------------- %-4s ------------------------------ n = %d\n", str, n);
+    printf("------------------------------- %-6s ---------------------------- n = %d\n", str, n);
     for (int p = 0; p < n; p++) {
         printf(LOG_COLOR_W "r%d ", p);
         printf(LOG_RESET_COLOR "|");
@@ -305,6 +305,77 @@ void EquationSolver::method_dfa2(bool param6, bool pivoting, int scale)
     print_res(param6, C, scale);
 }
 
+void EquationSolver::method_dfa2s(bool param6, bool pivoting, int scale)
+{
+    int n = param6 ? 6 : 4;
+    int64_t D[7][7] = { 0 };
+
+    print_mat("DFA2-S", param6, C);
+
+    for (int k = 0; k < n; k++) {
+        if (pivoting) {
+            // find column max
+            int m = k;
+            int64_t t = fabs(C[k][k]);
+
+            for (int i = k + 1; i < n; i++) {
+                if (fabs(C[i][k]) > t) {
+                    t = fabs(C[i][k]);
+                    m = i;
+                }
+            }
+
+            // swap rows k and m
+            if (m != k) {
+                print_mat('A', k, m, param6, C);
+
+                for (int j = 0; j < n + 1; j++) {
+                    C[6][j] = C[k][j];
+                    C[k][j] = C[m][j];
+                    C[m][j] = C[6][j];
+                }
+
+                print_mat('B', k, m, param6, C);
+            }
+        }
+
+        int B = 0;
+        int64_t M = C[k][k];
+        int64_t TM = abs(M);
+
+        while (TM >>= 1) {
+            B++;
+        }
+
+        for (int i = 0; i < n; i++) {
+            int64_t L = C[i][k];
+
+            if (k == i) {
+                // row k is not modified
+                for (int j = 0; j < n + 1; j++) {
+                    D[k][j] = C[k][j];
+                }
+            } else {
+                // make C[i][k] zero
+                for (int j = 0; j < n + 1; j++) {
+                    D[i][j] = M * C[i][j] - L * C[k][j];
+                    D[i][j] = M < 0 ? -D[i][j] >> B : D[i][j] >> B;
+                }
+            }
+        }
+
+        for (int i = 0; i < n; i++) {
+            for (int j = 0; j < n + 2; j++) {
+                C[i][j] = D[i][j];
+            }
+        }
+
+        print_mat('C', k, param6, C);
+    }
+
+    print_res(param6, C, scale);
+}
+
 void EquationSolver::method_dfa3(bool param6, bool pivoting, int scale)
 {
     int n = param6 ? 6 : 4;
@@ -369,6 +440,86 @@ void EquationSolver::method_dfa3(bool param6, bool pivoting, int scale)
                 for (int j = 0; j < n + 1; j++) {
                     D[i][j] = M * C[i][j] - L * C[k][j];
                     D[i][j] = D[i][j] >> B;
+                }
+            }
+        }
+
+        for (int i = 0; i < n; i++) {
+            for (int j = 0; j < n + 2; j++) {
+                C[i][j] = D[i][j];
+            }
+        }
+
+        print_mat('C', k, param6, C);
+    }
+
+    print_res(param6, C, scale);
+}
+
+void EquationSolver::method_dfa3s(bool param6, bool pivoting, int scale)
+{
+    int n = param6 ? 6 : 4;
+    int64_t D[7][7] = { 0 };
+
+    print_mat("DFA3-S", param6, C);
+
+    for (int k = 0; k < n; k++) {
+        if (pivoting) {
+            // find column max
+            int m = k;
+            int64_t t = fabs(C[k][k]);
+
+            for (int i = k + 1; i < n; i++) {
+                if (fabs(C[i][k]) > t) {
+                    t = fabs(C[i][k]);
+                    m = i;
+                }
+            }
+
+            // swap rows k and m
+            if (m != k) {
+                print_mat('A', k, m, param6, C);
+
+                for (int j = 0; j < n + 1; j++) {
+                    C[6][j] = C[k][j];
+                    C[k][j] = C[m][j];
+                    C[m][j] = C[6][j];
+                }
+
+                print_mat('B', k, m, param6, C);
+            }
+        }
+
+        int B = 0;
+        int64_t M = C[k][k];
+        int64_t TM = abs(M);
+        int64_t HM = abs(M);
+
+        while (TM >>= 1) {
+            B++;
+        }
+
+        if (B != 0) {
+            HM >>= B - 1;
+
+            if (HM & 0x01) {
+                B++;
+            }
+        }
+
+        for (int i = 0; i < n; i++) {
+            int64_t L = C[i][k];
+
+            if (k == i) {
+                // row k is not modified
+                for (int j = 0; j < n + 1; j++) {
+                    D[k][j] = C[k][j];
+                }
+            } else {
+                // make C[i][k] zero
+                for (int j = 0; j < n + 1; j++) {
+                    D[i][j] = M * C[i][j] - L * C[k][j];
+                    D[i][j] = M < 0 ? -D[i][j] >> B : D[i][j] >> B;
                 }
             }
         }

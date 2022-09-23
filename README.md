@@ -1,22 +1,10 @@
-Gauss-Jordan elimination algorithm
-==================================
+Equation Solver
+===============
 
 <img src="docs/test.png">
-
-## Usage
-
-```
-N M D M{...} D{...}
-
-N: Number of variables
-M: Number of minterms
-D: Number of don't-care terms
-M{...}: Minterms
-D{...}: Don't-care terms
-```
 
 ## Run
 
 ```
-gcc tdge.cpp && ./a.out
+g++ EquationSolver.cpp main.cpp && ./a.out
 ```

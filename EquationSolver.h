@@ -34,7 +34,9 @@ public:
     void method_gja(bool param6, bool pivoting);
     void method_dfa(bool param6, bool pivoting, int scale);
     void method_dfa2(bool param6, bool pivoting, int scale);
+    void method_dfa2s(bool param6, bool pivoting, int scale);
     void method_dfa3(bool param6, bool pivoting, int scale);
+    void method_dfa3s(bool param6, bool pivoting, int scale);
 };
 
 #endif // __EQUATIONSOLVER__

@@ -60,7 +60,15 @@ int main(int argc, char **argv)
     solver->save_data(D, 4, 3);
 
     solver->load_data(C, 4, 3);
+    solver->method_dfa2s(false, true, 3);
+    solver->save_data(D, 4, 3);
+
+    solver->load_data(C, 4, 3);
     solver->method_dfa3(false, true, 3);
+    solver->save_data(D, 4, 3);
+
+    solver->load_data(C, 4, 3);
+    solver->method_dfa3s(false, true, 3);
     solver->save_data(D, 4, 3);
 
     delete(solver);
