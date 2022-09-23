@@ -71,6 +71,10 @@ int main(int argc, char **argv)
     solver->method_dfa3s(4, 3);
     solver->save_data(D, 4, 3);
 
+    solver->load_data(C, 4, 0);
+    solver->method_cra(4, 0);
+    solver->save_data(D, 4, 0);
+
     delete(solver);
 
     return 0;
