@@ -37,6 +37,8 @@ public:
     void method_dfa2s(int n, int scale);
     void method_dfa3(int n, int scale);
     void method_dfa3s(int n, int scale);
+    void method_dfa4a(int n, int scale);
+    void method_dfa4b(int n, int scale);
     void method_cra(int n, int scale);
 };
 
