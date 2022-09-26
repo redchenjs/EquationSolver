@@ -55,9 +55,11 @@ int main(int argc, char **argv)
     solver->method_dfa(4, 0);
     solver->save_data(D, 4, 0);
 
+#ifdef __GNUC__
     solver->load_data(C, 4, 0);
     solver->method_dfa128(4, 0);
     solver->save_data(D, 4, 0);
+#endif
 
     solver->load_data(C, 4, 3);
     solver->method_dfa2(4, 3);

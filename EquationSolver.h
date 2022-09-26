@@ -33,7 +33,9 @@ public:
 
     void method_gja(int n);
     void method_dfa(int n, int scale);
+#ifdef __GNUC__
     void method_dfa128(int n, int scale);
+#endif
     void method_dfa2(int n, int scale);
     void method_dfa2s(int n, int scale);
     void method_dfa3(int n, int scale);

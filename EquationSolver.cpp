@@ -166,11 +166,11 @@ void EquationSolver::method_dfa(int n, int scale)
     for (int k = 0; k < n; k++) {
         // find column max
         int m = k;
-        int64_t t = fabs(C[k][k]);
+        int64_t t = (int64_t)fabs(C[k][k]);
 
         for (int i = k + 1; i < n; i++) {
             if (fabs(C[i][k]) > t) {
-                t = fabs(C[i][k]);
+                t = (int64_t)fabs(C[i][k]);
                 m = i;
             }
         }
@@ -188,27 +188,27 @@ void EquationSolver::method_dfa(int n, int scale)
             print_mat('B', k, m, n, C);
         }
 
-        int64_t M = C[k][k];
+        int64_t M = (int64_t)C[k][k];
 
         for (int i = 0; i < n; i++) {
-            int64_t L = C[i][k];
+            int64_t L = (int64_t)C[i][k];
 
             if (k == i) {
                 // row k is not modified
                 for (int j = 0; j < n + 1; j++) {
-                    D[k][j] = C[k][j];
+                    D[k][j] = (int64_t)C[k][j];
                 }
             } else {
                 // make C[i][k] zero
                 for (int j = 0; j < n + 1; j++) {
-                    D[i][j] = M * C[i][j] - L * C[k][j];
+                    D[i][j] = (int64_t)(M * C[i][j] - L * C[k][j]);
                 }
             }
         }
 
         for (int i = 0; i < n; i++) {
             for (int j = 0; j < n + 1; j++) {
-                C[i][j] = D[i][j];
+                C[i][j] = (long double)D[i][j];
             }
         }
 
@@ -218,6 +218,7 @@ void EquationSolver::method_dfa(int n, int scale)
     print_res(n, C, scale);
 }
 
+#ifdef __GNUC__
 void EquationSolver::method_dfa128(int n, int scale)
 {
     __int128_t D[7][7] = { 0 };
@@ -227,11 +228,11 @@ void EquationSolver::method_dfa128(int n, int scale)
     for (int k = 0; k < n; k++) {
         // find column max
         int m = k;
-        __int128_t t = fabs(C[k][k]);
+        __int128_t t = (__int128_t)fabs(C[k][k]);
 
         for (int i = k + 1; i < n; i++) {
             if (fabs(C[i][k]) > t) {
-                t = fabs(C[i][k]);
+                t = (__int128_t)fabs(C[i][k]);
                 m = i;
             }
         }
@@ -249,27 +250,27 @@ void EquationSolver::method_dfa128(int n, int scale)
             print_mat('B', k, m, n, C);
         }
 
-        __int128_t M = C[k][k];
+        __int128_t M = (__int128_t)C[k][k];
 
         for (int i = 0; i < n; i++) {
-            __int128_t L = C[i][k];
+            __int128_t L = (__int128_t)C[i][k];
 
             if (k == i) {
                 // row k is not modified
                 for (int j = 0; j < n + 1; j++) {
-                    D[k][j] = C[k][j];
+                    D[k][j] = (__int128_t)C[k][j];
                 }
             } else {
                 // make C[i][k] zero
                 for (int j = 0; j < n + 1; j++) {
-                    D[i][j] = M * C[i][j] - L * C[k][j];
+                    D[i][j] = (__int128_t)(M * C[i][j] - L * C[k][j]);
                 }
             }
         }
 
         for (int i = 0; i < n; i++) {
             for (int j = 0; j < n + 1; j++) {
-                C[i][j] = D[i][j];
+                C[i][j] = (long double)D[i][j];
             }
         }
 
@@ -278,6 +279,7 @@ void EquationSolver::method_dfa128(int n, int scale)
 
     print_res(n, C, scale);
 }
+#endif
 
 void EquationSolver::method_dfa2(int n, int scale)
 {
@@ -288,11 +290,11 @@ void EquationSolver::method_dfa2(int n, int scale)
     for (int k = 0; k < n; k++) {
         // find column max
         int m = k;
-        int64_t t = fabs(C[k][k]);
+        int64_t t = (int64_t)fabs(C[k][k]);
 
         for (int i = k + 1; i < n; i++) {
             if (fabs(C[i][k]) > t) {
-                t = fabs(C[i][k]);
+                t = (int64_t)fabs(C[i][k]);
                 m = i;
             }
         }
@@ -311,7 +313,7 @@ void EquationSolver::method_dfa2(int n, int scale)
         }
 
         int B = 0;
-        int64_t M = C[k][k];
+        int64_t M = (int64_t)C[k][k];
         int64_t TM = abs(M);
 
         while (TM >>= 1) {
@@ -319,17 +321,17 @@ void EquationSolver::method_dfa2(int n, int scale)
         }
 
         for (int i = 0; i < n; i++) {
-            int64_t L = C[i][k];
+            int64_t L = (int64_t)C[i][k];
 
             if (k == i) {
                 // row k is not modified
                 for (int j = 0; j < n + 1; j++) {
-                    D[k][j] = C[k][j];
+                    D[k][j] = (int64_t)C[k][j];
                 }
             } else {
                 // make C[i][k] zero
                 for (int j = 0; j < n + 1; j++) {
-                    D[i][j] = M * C[i][j] - L * C[k][j];
+                    D[i][j] = (int64_t)(M * C[i][j] - L * C[k][j]);
                     D[i][j] = D[i][j] >> B;
                 }
             }
@@ -337,7 +339,7 @@ void EquationSolver::method_dfa2(int n, int scale)
 
         for (int i = 0; i < n; i++) {
             for (int j = 0; j < n + 2; j++) {
-                C[i][j] = D[i][j];
+                C[i][j] = (long double)D[i][j];
             }
         }
 
@@ -356,11 +358,11 @@ void EquationSolver::method_dfa2s(int n, int scale)
     for (int k = 0; k < n; k++) {
         // find column max
         int m = k;
-        int64_t t = fabs(C[k][k]);
+        int64_t t = (int64_t)fabs(C[k][k]);
 
         for (int i = k + 1; i < n; i++) {
             if (fabs(C[i][k]) > t) {
-                t = fabs(C[i][k]);
+                t = (int64_t)fabs(C[i][k]);
                 m = i;
             }
         }
@@ -379,7 +381,7 @@ void EquationSolver::method_dfa2s(int n, int scale)
         }
 
         int B = 0;
-        int64_t M = C[k][k];
+        int64_t M = (int64_t)C[k][k];
         int64_t TM = abs(M);
 
         while (TM >>= 1) {
@@ -387,17 +389,17 @@ void EquationSolver::method_dfa2s(int n, int scale)
         }
 
         for (int i = 0; i < n; i++) {
-            int64_t L = C[i][k];
+            int64_t L = (int64_t)C[i][k];
 
             if (k == i) {
                 // row k is not modified
                 for (int j = 0; j < n + 1; j++) {
-                    D[k][j] = C[k][j];
+                    D[k][j] = (int64_t)C[k][j];
                 }
             } else {
                 // make C[i][k] zero
                 for (int j = 0; j < n + 1; j++) {
-                    D[i][j] = M * C[i][j] - L * C[k][j];
+                    D[i][j] = (int64_t)(M * C[i][j] - L * C[k][j]);
                     D[i][j] = M < 0 ? -D[i][j] >> B : D[i][j] >> B;
                 }
             }
@@ -405,7 +407,7 @@ void EquationSolver::method_dfa2s(int n, int scale)
 
         for (int i = 0; i < n; i++) {
             for (int j = 0; j < n + 2; j++) {
-                C[i][j] = D[i][j];
+                C[i][j] = (long double)D[i][j];
             }
         }
 
@@ -424,11 +426,11 @@ void EquationSolver::method_dfa3(int n, int scale)
     for (int k = 0; k < n; k++) {
         // find column max
         int m = k;
-        int64_t t = fabs(C[k][k]);
+        int64_t t = (int64_t)fabs(C[k][k]);
 
         for (int i = k + 1; i < n; i++) {
             if (fabs(C[i][k]) > t) {
-                t = fabs(C[i][k]);
+                t = (int64_t)fabs(C[i][k]);
                 m = i;
             }
         }
@@ -447,7 +449,7 @@ void EquationSolver::method_dfa3(int n, int scale)
         }
 
         int B = 0;
-        int64_t M = C[k][k];
+        int64_t M = (int64_t)C[k][k];
         int64_t TM = abs(M);
         int64_t HM = abs(M);
 
@@ -464,17 +466,17 @@ void EquationSolver::method_dfa3(int n, int scale)
         }
 
         for (int i = 0; i < n; i++) {
-            int64_t L = C[i][k];
+            int64_t L = (int64_t)C[i][k];
 
             if (k == i) {
                 // row k is not modified
                 for (int j = 0; j < n + 1; j++) {
-                    D[k][j] = C[k][j];
+                    D[k][j] = (int64_t)C[k][j];
                 }
             } else {
                 // make C[i][k] zero
                 for (int j = 0; j < n + 1; j++) {
-                    D[i][j] = M * C[i][j] - L * C[k][j];
+                    D[i][j] = (int64_t)(M * C[i][j] - L * C[k][j]);
                     D[i][j] = D[i][j] >> B;
                 }
             }
@@ -482,7 +484,7 @@ void EquationSolver::method_dfa3(int n, int scale)
 
         for (int i = 0; i < n; i++) {
             for (int j = 0; j < n + 2; j++) {
-                C[i][j] = D[i][j];
+                C[i][j] = (long double)D[i][j];
             }
         }
 
@@ -501,11 +503,11 @@ void EquationSolver::method_dfa3s(int n, int scale)
     for (int k = 0; k < n; k++) {
         // find column max
         int m = k;
-        int64_t t = fabs(C[k][k]);
+        int64_t t = (int64_t)fabs(C[k][k]);
 
         for (int i = k + 1; i < n; i++) {
             if (fabs(C[i][k]) > t) {
-                t = fabs(C[i][k]);
+                t = (int64_t)fabs(C[i][k]);
                 m = i;
             }
         }
@@ -524,7 +526,7 @@ void EquationSolver::method_dfa3s(int n, int scale)
         }
 
         int B = 0;
-        int64_t M = C[k][k];
+        int64_t M = (int64_t)C[k][k];
         int64_t TM = abs(M);
         int64_t HM = abs(M);
 
@@ -541,17 +543,17 @@ void EquationSolver::method_dfa3s(int n, int scale)
         }
 
         for (int i = 0; i < n; i++) {
-            int64_t L = C[i][k];
+            int64_t L = (int64_t)C[i][k];
 
             if (k == i) {
                 // row k is not modified
                 for (int j = 0; j < n + 1; j++) {
-                    D[k][j] = C[k][j];
+                    D[k][j] = (int64_t)C[k][j];
                 }
             } else {
                 // make C[i][k] zero
                 for (int j = 0; j < n + 1; j++) {
-                    D[i][j] = M * C[i][j] - L * C[k][j];
+                    D[i][j] = (int64_t)(M * C[i][j] - L * C[k][j]);
                     D[i][j] = M < 0 ? -D[i][j] >> B : D[i][j] >> B;
                 }
             }
@@ -559,7 +561,7 @@ void EquationSolver::method_dfa3s(int n, int scale)
 
         for (int i = 0; i < n; i++) {
             for (int j = 0; j < n + 2; j++) {
-                C[i][j] = D[i][j];
+                C[i][j] = (long double)D[i][j];
             }
         }
 
@@ -578,11 +580,11 @@ void EquationSolver::method_dfa4a(int n, int scale)
     for (int k = 0; k < n; k++) {
         // find column max
         int m = k;
-        int64_t t = fabs(C[k][k]);
+        int64_t t = (int64_t)fabs(C[k][k]);
 
         for (int i = k + 1; i < n; i++) {
             if (fabs(C[i][k]) > t) {
-                t = fabs(C[i][k]);
+                t = (int64_t)fabs(C[i][k]);
                 m = i;
             }
         }
@@ -601,7 +603,7 @@ void EquationSolver::method_dfa4a(int n, int scale)
         }
 
         int B = 0;
-        int64_t M = C[k][k];
+        int64_t M = (int64_t)C[k][k];
         int64_t TM = abs(M);
 
         while (TM >>= 1) {
@@ -609,24 +611,24 @@ void EquationSolver::method_dfa4a(int n, int scale)
         }
 
         for (int i = 0; i < n; i++) {
-            int64_t L = C[i][k];
+            int64_t L = (int64_t)C[i][k];
 
             if (k == i) {
                 // row k is not modified
                 for (int j = 0; j < n + 1; j++) {
-                    D[k][j] = C[k][j];
+                    D[k][j] = (int64_t)C[k][j];
                 }
             } else {
                 // make C[i][k] zero
                 for (int j = 0; j < n + 1; j++) {
-                    D[i][j] = C[i][j] - (L >> B) * C[k][j];
+                    D[i][j] = (int64_t)(C[i][j] - (L >> B) * C[k][j]);
                 }
             }
         }
 
         for (int i = 0; i < n; i++) {
             for (int j = 0; j < n + 2; j++) {
-                C[i][j] = D[i][j];
+                C[i][j] = (long double)D[i][j];
             }
         }
 
@@ -645,11 +647,11 @@ void EquationSolver::method_dfa4b(int n, int scale)
     for (int k = 0; k < n; k++) {
         // find column max
         int m = k;
-        int64_t t = fabs(C[k][k]);
+        int64_t t = (int64_t)fabs(C[k][k]);
 
         for (int i = k + 1; i < n; i++) {
             if (fabs(C[i][k]) > t) {
-                t = fabs(C[i][k]);
+                t = (int64_t)fabs(C[i][k]);
                 m = i;
             }
         }
@@ -668,7 +670,7 @@ void EquationSolver::method_dfa4b(int n, int scale)
         }
 
         int B = 0;
-        int64_t M = C[k][k];
+        int64_t M = (int64_t)C[k][k];
         int64_t TM = abs(M);
         int64_t HM = abs(M);
 
@@ -685,24 +687,24 @@ void EquationSolver::method_dfa4b(int n, int scale)
         }
 
         for (int i = 0; i < n; i++) {
-            int64_t L = C[i][k];
+            int64_t L = (int64_t)C[i][k];
 
             if (k == i) {
                 // row k is not modified
                 for (int j = 0; j < n + 1; j++) {
-                    D[k][j] = C[k][j];
+                    D[k][j] = (int64_t)C[k][j];
                 }
             } else {
                 // make C[i][k] zero
                 for (int j = 0; j < n + 1; j++) {
-                    D[i][j] = C[i][j] - (L >> B) * C[k][j];
+                    D[i][j] = (int64_t)(C[i][j] - (L >> B) * C[k][j]);
                 }
             }
         }
 
         for (int i = 0; i < n; i++) {
             for (int j = 0; j < n + 2; j++) {
-                C[i][j] = D[i][j];
+                C[i][j] = (long double)D[i][j];
             }
         }
 
@@ -728,15 +730,15 @@ void EquationSolver::method_cra(int n, int scale)
     }
 
     // D
-    D[0] = C[0][0] * C[1][1] - C[0][1] * C[1][0];
-    D[1] = C[0][2] * C[1][3] - C[0][3] * C[1][2];
-    D[2] = C[0][4] * C[1][5] - C[0][5] * C[1][4];
-    D[3] = C[2][0] * C[3][1] - C[2][1] * C[3][0];
-    D[4] = C[2][2] * C[3][3] - C[2][3] * C[3][2];
-    D[5] = C[2][4] * C[3][5] - C[2][5] * C[3][4];
-    D[6] = C[4][0] * C[5][1] - C[4][1] * C[5][0];
-    D[7] = C[4][2] * C[5][3] - C[4][3] * C[5][2];
-    D[8] = C[4][4] * C[5][5] - C[4][5] * C[5][4];
+    D[0] = (int64_t)(C[0][0] * C[1][1] - C[0][1] * C[1][0]);
+    D[1] = (int64_t)(C[0][2] * C[1][3] - C[0][3] * C[1][2]);
+    D[2] = (int64_t)(C[0][4] * C[1][5] - C[0][5] * C[1][4]);
+    D[3] = (int64_t)(C[2][0] * C[3][1] - C[2][1] * C[3][0]);
+    D[4] = (int64_t)(C[2][2] * C[3][3] - C[2][3] * C[3][2]);
+    D[5] = (int64_t)(C[2][4] * C[3][5] - C[2][5] * C[3][4]);
+    D[6] = (int64_t)(C[4][0] * C[5][1] - C[4][1] * C[5][0]);
+    D[7] = (int64_t)(C[4][2] * C[5][3] - C[4][3] * C[5][2]);
+    D[8] = (int64_t)(C[4][4] * C[5][5] - C[4][5] * C[5][4]);
 
     D[9]  = D[1] * D[5] - D[2] * D[4];
     D[10] = D[1] * D[8] - D[2] * D[7];
@@ -745,23 +747,23 @@ void EquationSolver::method_cra(int n, int scale)
     D[12] = D[0] * D[11] - D[3] * D[10] + D[6] * D[9];
 
     // D_0
-    D_I[0][0] = C[0][6] * C[1][1] - C[0][1] * C[1][6];
-    D_I[0][1] = C[2][6] * C[3][1] - C[2][1] * C[3][6];
-    D_I[0][2] = C[4][6] * C[5][1] - C[4][1] * C[5][6];
+    D_I[0][0] = (int64_t)(C[0][6] * C[1][1] - C[0][1] * C[1][6]);
+    D_I[0][1] = (int64_t)(C[2][6] * C[3][1] - C[2][1] * C[3][6]);
+    D_I[0][2] = (int64_t)(C[4][6] * C[5][1] - C[4][1] * C[5][6]);
 
     D_I[0][6] = D_I[0][0] * D[11] - D_I[0][1] * D[10] + D_I[0][2] * D[9];
 
     // D_1
-    D_I[1][0] = C[0][0] * C[1][6] - C[0][6] * C[1][0];
-    D_I[1][1] = C[2][0] * C[3][6] - C[2][6] * C[3][0];
-    D_I[1][2] = C[4][0] * C[5][6] - C[4][6] * C[5][0];
+    D_I[1][0] = (int64_t)(C[0][0] * C[1][6] - C[0][6] * C[1][0]);
+    D_I[1][1] = (int64_t)(C[2][0] * C[3][6] - C[2][6] * C[3][0]);
+    D_I[1][2] = (int64_t)(C[4][0] * C[5][6] - C[4][6] * C[5][0]);
 
     D_I[1][6] = D_I[1][0] * D[11] - D_I[1][1] * D[10] + D_I[1][2] * D[9];
 
     // D_2
-    D_I[2][0] = C[0][6] * C[1][3] - C[0][3] * C[1][6];
-    D_I[2][1] = C[2][6] * C[3][3] - C[2][3] * C[3][6];
-    D_I[2][2] = C[4][6] * C[5][3] - C[4][3] * C[5][6];
+    D_I[2][0] = (int64_t)(C[0][6] * C[1][3] - C[0][3] * C[1][6]);
+    D_I[2][1] = (int64_t)(C[2][6] * C[3][3] - C[2][3] * C[3][6]);
+    D_I[2][2] = (int64_t)(C[4][6] * C[5][3] - C[4][3] * C[5][6]);
 
     D_I[2][3] = D_I[2][0] * D[5] - D[2] * D_I[2][1];
     D_I[2][4] = D_I[2][0] * D[8] - D[2] * D_I[2][2];
@@ -770,9 +772,9 @@ void EquationSolver::method_cra(int n, int scale)
     D_I[2][6] = D_I[2][3] * D[11] - D_I[2][4] * D[10] + D_I[2][5] * D[9];
 
     // D_3
-    D_I[3][0] = C[0][2] * C[1][6] - C[0][6] * C[1][2];
-    D_I[3][1] = C[2][2] * C[3][6] - C[2][6] * C[3][2];
-    D_I[3][2] = C[4][2] * C[5][6] - C[4][6] * C[5][2];
+    D_I[3][0] = (int64_t)(C[0][2] * C[1][6] - C[0][6] * C[1][2]);
+    D_I[3][1] = (int64_t)(C[2][2] * C[3][6] - C[2][6] * C[3][2]);
+    D_I[3][2] = (int64_t)(C[4][2] * C[5][6] - C[4][6] * C[5][2]);
 
     D_I[3][3] = D_I[3][0] * D[5] - D[2] * D_I[3][1];
     D_I[3][4] = D_I[3][0] * D[8] - D[2] * D_I[3][2];
@@ -781,9 +783,9 @@ void EquationSolver::method_cra(int n, int scale)
     D_I[3][6] = D_I[3][3] * D[11] - D_I[3][4] * D[10] + D_I[3][5] * D[9];
 
     // D_4
-    D_I[4][0] = C[0][6] * C[1][5] - C[0][5] * C[1][6];
-    D_I[4][1] = C[2][6] * C[3][5] - C[2][5] * C[3][6];
-    D_I[4][2] = C[4][6] * C[5][5] - C[4][5] * C[5][6];
+    D_I[4][0] = (int64_t)(C[0][6] * C[1][5] - C[0][5] * C[1][6]);
+    D_I[4][1] = (int64_t)(C[2][6] * C[3][5] - C[2][5] * C[3][6]);
+    D_I[4][2] = (int64_t)(C[4][6] * C[5][5] - C[4][5] * C[5][6]);
 
     D_I[4][3] = D[1] * D_I[4][1] - D_I[4][0] * D[4];
     D_I[4][4] = D[2] * D_I[4][2] - D_I[4][0] * D[7];
@@ -792,9 +794,9 @@ void EquationSolver::method_cra(int n, int scale)
     D_I[4][6] = D[0] * D_I[4][3] - D[3] * D_I[4][4] + D[6] * D_I[4][5];
 
     // D_5
-    D_I[5][0] = C[0][4] * C[1][6] - C[0][6] * C[1][4];
-    D_I[5][1] = C[2][4] * C[3][6] - C[2][6] * C[3][4];
-    D_I[5][2] = C[4][4] * C[5][6] - C[4][6] * C[5][4];
+    D_I[5][0] = (int64_t)(C[0][4] * C[1][6] - C[0][6] * C[1][4]);
+    D_I[5][1] = (int64_t)(C[2][4] * C[3][6] - C[2][6] * C[3][4]);
+    D_I[5][2] = (int64_t)(C[4][4] * C[5][6] - C[4][6] * C[5][4]);
 
     D_I[5][3] = D[1] * D_I[5][1] - D_I[5][0] * D[4];
     D_I[5][4] = D[2] * D_I[5][2] - D_I[5][0] * D[7];
@@ -805,29 +807,29 @@ void EquationSolver::method_cra(int n, int scale)
     memset(C, 0x00, sizeof(C));
 
     if (n == 6) {
-        C[0][0] = D[12];
-        C[1][1] = D[12];
-        C[2][2] = D[12];
-        C[3][3] = D[12];
-        C[4][4] = D[12];
-        C[5][5] = D[12];
+        C[0][0] = (long double)D[12];
+        C[1][1] = (long double)D[12];
+        C[2][2] = (long double)D[12];
+        C[3][3] = (long double)D[12];
+        C[4][4] = (long double)D[12];
+        C[5][5] = (long double)D[12];
 
-        C[0][6] = D_I[0][6];
-        C[1][6] = D_I[1][6];
-        C[2][6] = D_I[2][6];
-        C[3][6] = D_I[3][6];
-        C[4][6] = D_I[4][6];
-        C[5][6] = D_I[5][6];
+        C[0][6] = (long double)D_I[0][6];
+        C[1][6] = (long double)D_I[1][6];
+        C[2][6] = (long double)D_I[2][6];
+        C[3][6] = (long double)D_I[3][6];
+        C[4][6] = (long double)D_I[4][6];
+        C[5][6] = (long double)D_I[5][6];
     } else {
-        C[0][0] = D[11];
-        C[1][1] = D[11];
-        C[2][2] = D[11];
-        C[3][3] = D[11];
+        C[0][0] = (long double)D[11];
+        C[1][1] = (long double)D[11];
+        C[2][2] = (long double)D[11];
+        C[3][3] = (long double)D[11];
 
-        C[0][4] = D_I[2][5];
-        C[1][4] = D_I[3][5];
-        C[2][4] = D_I[4][5];
-        C[3][4] = D_I[5][5];
+        C[0][4] = (long double)D_I[2][5];
+        C[1][4] = (long double)D_I[3][5];
+        C[2][4] = (long double)D_I[4][5];
+        C[3][4] = (long double)D_I[5][5];
     }
 
     print_mat("CRA_O", n, C);
@@ -839,9 +841,9 @@ void EquationSolver::load_data(const int64_t i64EqualCoeff[7][7], int iParaNum, 
     for (int row = 0; row < iParaNum; row++) {
         for (int i = 0; i < iParaNum + 1; i++) {
             if (i == iParaNum) {
-                C[row][i] = i64EqualCoeff[row + 1][i] << scale;
+                C[row][i] = (long double)(i64EqualCoeff[row + 1][i] << scale);
             } else {
-                C[row][i] = i64EqualCoeff[row + 1][i];
+                C[row][i] = (long double)i64EqualCoeff[row + 1][i];
             }
         }
     }
