@@ -47,9 +47,19 @@ int main(int argc, char **argv)
 {
     EquationSolver *solver = new EquationSolver();
 
+    solver->set_debug(true);
+
     solver->load_data(C, 4, 0);
     solver->method_gja(4);
     solver->save_data(D, 4, 0);
+
+    solver->load_data(C, 4, 4);
+    solver->method_gja2(4, 4, 4);
+    solver->save_data(D, 4, 4);
+
+    solver->load_data(C, 4, 8);
+    solver->method_gja2(4, 8, 8);
+    solver->save_data(D, 4, 8);
 
     solver->load_data(C, 4, 0);
     solver->method_dfa(4, 0);
@@ -61,29 +71,33 @@ int main(int argc, char **argv)
     solver->save_data(D, 4, 0);
 #endif
 
-    solver->load_data(C, 4, 3);
-    solver->method_dfa2(4, 3);
-    solver->save_data(D, 4, 3);
+    solver->load_data(C, 4, 4);
+    solver->method_dfa2(4, 4);
+    solver->save_data(D, 4, 4);
 
-    solver->load_data(C, 4, 3);
-    solver->method_dfa2s(4, 3);
-    solver->save_data(D, 4, 3);
+    solver->load_data(C, 4, 4);
+    solver->method_dfa2s(4, 4);
+    solver->save_data(D, 4, 4);
 
-    solver->load_data(C, 4, 3);
-    solver->method_dfa3(4, 3);
-    solver->save_data(D, 4, 3);
+    solver->load_data(C, 4, 4);
+    solver->method_dfa3(4, 4);
+    solver->save_data(D, 4, 4);
 
-    solver->load_data(C, 4, 3);
-    solver->method_dfa3s(4, 3);
-    solver->save_data(D, 4, 3);
+    solver->load_data(C, 4, 8);
+    solver->method_dfa3(4, 8);
+    solver->save_data(D, 4, 8);
 
-    solver->load_data(C, 4, 3);
-    solver->method_dfa4a(4, 3);
-    solver->save_data(D, 4, 3);
+    solver->load_data(C, 4, 4);
+    solver->method_dfa3s(4, 4);
+    solver->save_data(D, 4, 4);
 
-    solver->load_data(C, 4, 3);
-    solver->method_dfa4b(4, 3);
-    solver->save_data(D, 4, 3);
+    solver->load_data(C, 4, 4);
+    solver->method_dfa4a(4, 4);
+    solver->save_data(D, 4, 4);
+
+    solver->load_data(C, 4, 4);
+    solver->method_dfa4b(4, 4);
+    solver->save_data(D, 4, 4);
 
     solver->load_data(C, 4, 0);
     solver->method_cra(4, 0);
