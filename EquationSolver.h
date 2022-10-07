@@ -19,8 +19,10 @@ private:
     bool debug = false;
     long double C[7][7] = { 0.0 };
 
-    void pivot_mat(int k, int n, int64_t C[7][7]);
-    void pivot_mat(int k, int n, long double C[7][7]);
+    void zero_mat(int n, long double C[7][7]);
+
+    bool pivot_mat(int k, int n, int64_t C[7][7]);
+    bool pivot_mat(int k, int n, long double C[7][7]);
 
     void print_mat(const char *str, int n, long double C[7][7]);
     void print_mat(char idx, int k, int n, int64_t C[7][7]);

@@ -28,7 +28,15 @@ void EquationSolver::set_debug(bool val)
     debug = val;
 }
 
-void EquationSolver::pivot_mat(int k, int n, int64_t C[7][7])
+void EquationSolver::zero_mat(int n, long double C[7][7])
+{
+    for (int p = 0; p < n; p++) {
+        C[p][p] = 1.0;
+        C[p][n] = 0.0;
+    }
+}
+
+bool EquationSolver::pivot_mat(int k, int n, int64_t C[7][7])
 {
     // find column max
     int m = k;
@@ -53,9 +61,15 @@ void EquationSolver::pivot_mat(int k, int n, int64_t C[7][7])
 
         print_mat('B', k, m, n, C);
     }
+
+    if (C[k][k] == 0) {
+        return false;
+    }
+
+    return true;
 }
 
-void EquationSolver::pivot_mat(int k, int n, long double C[7][7])
+bool EquationSolver::pivot_mat(int k, int n, long double C[7][7])
 {
     // find column max
     int m = k;
@@ -80,6 +94,12 @@ void EquationSolver::pivot_mat(int k, int n, long double C[7][7])
 
         print_mat('B', k, m, n, C);
     }
+
+    if (C[k][k] == 0.) {
+        return false;
+    }
+
+    return true;
 }
 
 void EquationSolver::print_mat(const char *str, int n, long double C[7][7])
@@ -191,12 +211,16 @@ void EquationSolver::print_res(int n, long double C[7][7], int scale)
 
 void EquationSolver::method_gja(int n)
 {
+    bool zero = false;
     long double D[7][7] = { 0.0 };
 
     print_mat("GJA", n, C);
 
     for (int k = 0; k < n; k++) {
-        pivot_mat(k, n, C);
+        if (!pivot_mat(k, n, C)) {
+            zero = true;
+            break;
+        }
 
         long double M = C[k][k];
 
@@ -225,11 +249,16 @@ void EquationSolver::method_gja(int n)
         print_mat('C', k, n, C);
     }
 
+    if (zero) {
+        zero_mat(n, C);
+    }
+
     print_res(n, C);
 }
 
 void EquationSolver::method_gja2(int n, int q, int scale)
 {
+    bool zero = false;
     int64_t D[7][7] = { 0 };
     int64_t F[7][7] = { 0 };
 
@@ -243,7 +272,10 @@ void EquationSolver::method_gja2(int n, int q, int scale)
     }
 
     for (int k = 0; k < n; k++) {
-        pivot_mat(k, n, F);
+        if (!pivot_mat(k, n, F)) {
+            zero = true;
+            break;
+        }
 
         int64_t M = F[k][k];
 
@@ -279,17 +311,25 @@ void EquationSolver::method_gja2(int n, int q, int scale)
         }
     }
 
+    if (zero) {
+        zero_mat(n, C);
+    }
+
     print_res(n, C, scale);
 }
 
 void EquationSolver::method_dfa(int n, int scale)
 {
+    bool zero = false;
     int64_t D[7][7] = { 0 };
 
     print_mat("DFA", n, C);
 
     for (int k = 0; k < n; k++) {
-        pivot_mat(k, n, C);
+        if (!pivot_mat(k, n, C)) {
+            zero = true;
+            break;
+        }
 
         int64_t M = (int64_t)C[k][k];
 
@@ -318,18 +358,26 @@ void EquationSolver::method_dfa(int n, int scale)
         print_mat('C', k, n, C);
     }
 
+    if (zero) {
+        zero_mat(n, C);
+    }
+
     print_res(n, C, scale);
 }
 
 #ifdef __GNUC__
 void EquationSolver::method_dfa128(int n, int scale)
 {
+    bool zero = false;
     __int128_t D[7][7] = { 0 };
 
     print_mat("DFA-128", n, C);
 
     for (int k = 0; k < n; k++) {
-        pivot_mat(k, n, C);
+        if (!pivot_mat(k, n, C)) {
+            zero = true;
+            break;
+        }
 
         __int128_t M = (__int128_t)C[k][k];
 
@@ -358,18 +406,26 @@ void EquationSolver::method_dfa128(int n, int scale)
         print_mat('C', k, n, C);
     }
 
+    if (zero) {
+        zero_mat(n, C);
+    }
+
     print_res(n, C, scale);
 }
 #endif
 
 void EquationSolver::method_dfa2(int n, int scale)
 {
+    bool zero = false;
     int64_t D[7][7] = { 0 };
 
     print_mat("DFA2", n, C);
 
     for (int k = 0; k < n; k++) {
-        pivot_mat(k, n, C);
+        if (!pivot_mat(k, n, C)) {
+            zero = true;
+            break;
+        }
 
         int B = 0;
         int64_t M = (int64_t)C[k][k];
@@ -403,6 +459,10 @@ void EquationSolver::method_dfa2(int n, int scale)
         }
 
         print_mat('C', k, n, C);
+    }
+
+    if (zero) {
+        zero_mat(n, C);
     }
 
     print_res(n, C, scale);
@@ -410,12 +470,16 @@ void EquationSolver::method_dfa2(int n, int scale)
 
 void EquationSolver::method_dfa2s(int n, int scale)
 {
+    bool zero = false;
     int64_t D[7][7] = { 0 };
 
     print_mat("DFA2-S", n, C);
 
     for (int k = 0; k < n; k++) {
-        pivot_mat(k, n, C);
+        if (!pivot_mat(k, n, C)) {
+            zero = true;
+            break;
+        }
 
         int B = 0;
         int64_t M = (int64_t)C[k][k];
@@ -451,17 +515,25 @@ void EquationSolver::method_dfa2s(int n, int scale)
         print_mat('C', k, n, C);
     }
 
+    if (zero) {
+        zero_mat(n, C);
+    }
+
     print_res(n, C, scale);
 }
 
 void EquationSolver::method_dfa3(int n, int scale)
 {
+    bool zero = false;
     int64_t D[7][7] = { 0 };
 
     print_mat("DFA3", n, C);
 
     for (int k = 0; k < n; k++) {
-        pivot_mat(k, n, C);
+        if (!pivot_mat(k, n, C)) {
+            zero = true;
+            break;
+        }
 
         int B = 0;
         int64_t M = (int64_t)C[k][k];
@@ -506,17 +578,25 @@ void EquationSolver::method_dfa3(int n, int scale)
         print_mat('C', k, n, C);
     }
 
+    if (zero) {
+        zero_mat(n, C);
+    }
+
     print_res(n, C, scale);
 }
 
 void EquationSolver::method_dfa3s(int n, int scale)
 {
+    bool zero = false;
     int64_t D[7][7] = { 0 };
 
     print_mat("DFA3-S", n, C);
 
     for (int k = 0; k < n; k++) {
-        pivot_mat(k, n, C);
+        if (!pivot_mat(k, n, C)) {
+            zero = true;
+            break;
+        }
 
         int B = 0;
         int64_t M = (int64_t)C[k][k];
@@ -561,17 +641,25 @@ void EquationSolver::method_dfa3s(int n, int scale)
         print_mat('C', k, n, C);
     }
 
+    if (zero) {
+        zero_mat(n, C);
+    }
+
     print_res(n, C, scale);
 }
 
 void EquationSolver::method_dfa4a(int n, int scale)
 {
+    bool zero = false;
     int64_t D[7][7] = { 0 };
 
     print_mat("DFA4-A", n, C);
 
     for (int k = 0; k < n; k++) {
-        pivot_mat(k, n, C);
+        if (!pivot_mat(k, n, C)) {
+            zero = true;
+            break;
+        }
 
         int B = 0;
         int64_t M = (int64_t)C[k][k];
@@ -606,17 +694,25 @@ void EquationSolver::method_dfa4a(int n, int scale)
         print_mat('C', k, n, C);
     }
 
+    if (zero) {
+        zero_mat(n, C);
+    }
+
     print_res(n, C, scale);
 }
 
 void EquationSolver::method_dfa4b(int n, int scale)
 {
+    bool zero = false;
     int64_t D[7][7] = { 0 };
 
     print_mat("DFA4-B", n, C);
 
     for (int k = 0; k < n; k++) {
-        pivot_mat(k, n, C);
+        if (!pivot_mat(k, n, C)) {
+            zero = true;
+            break;
+        }
 
         int B = 0;
         int64_t M = (int64_t)C[k][k];
@@ -658,6 +754,10 @@ void EquationSolver::method_dfa4b(int n, int scale)
         }
 
         print_mat('C', k, n, C);
+    }
+
+    if (zero) {
+        zero_mat(n, C);
     }
 
     print_res(n, C, scale);
