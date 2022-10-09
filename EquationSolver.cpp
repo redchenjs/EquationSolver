@@ -452,7 +452,7 @@ void EquationSolver::method_dfa2s(int n, int scale)
                 // make C[i][k] zero
                 for (int j = 0; j < n + 1; j++) {
                     D[i][j] = (int64_t)(M * C[i][j] - L * C[k][j]);
-                    D[i][j] = M < 0 ? -D[i][j] >> B : D[i][j] >> B;
+                    D[i][j] = (M < 0) ? (-D[i][j]) >> B : D[i][j] >> B;
                 }
             }
         }
@@ -578,122 +578,7 @@ void EquationSolver::method_dfa3s(int n, int scale)
                 // make C[i][k] zero
                 for (int j = 0; j < n + 1; j++) {
                     D[i][j] = (int64_t)(M * C[i][j] - L * C[k][j]);
-                    D[i][j] = M < 0 ? -D[i][j] >> B : D[i][j] >> B;
-                }
-            }
-        }
-
-        for (int i = 0; i < n; i++) {
-            for (int j = 0; j < n + 2; j++) {
-                C[i][j] = (double)D[i][j];
-            }
-        }
-
-        print_mat('C', k, n, C);
-    }
-
-    if (zero) {
-        zero_mat(n, C);
-    }
-
-    print_res(n, C, scale);
-}
-
-void EquationSolver::method_dfa4a(int n, int scale)
-{
-    bool zero = false;
-    int64_t D[7][7] = { 0 };
-
-    print_mat("DFA4-A", n, C);
-
-    for (int k = 0; k < n; k++) {
-        if (!pivot_mat(k, n, C)) {
-            zero = true;
-            break;
-        }
-
-        int B = 0;
-        int64_t M = (int64_t)C[k][k];
-        int64_t TM = abs(M);
-
-        while (TM >>= 1) {
-            B++;
-        }
-
-        for (int i = 0; i < n; i++) {
-            int64_t L = (int64_t)C[i][k];
-
-            if (k == i) {
-                // row k is not modified
-                for (int j = 0; j < n + 1; j++) {
-                    D[k][j] = (int64_t)C[k][j];
-                }
-            } else {
-                // make C[i][k] zero
-                for (int j = 0; j < n + 1; j++) {
-                    D[i][j] = (int64_t)(C[i][j] - (L >> B) * C[k][j]);
-                }
-            }
-        }
-
-        for (int i = 0; i < n; i++) {
-            for (int j = 0; j < n + 2; j++) {
-                C[i][j] = (double)D[i][j];
-            }
-        }
-
-        print_mat('C', k, n, C);
-    }
-
-    if (zero) {
-        zero_mat(n, C);
-    }
-
-    print_res(n, C, scale);
-}
-
-void EquationSolver::method_dfa4b(int n, int scale)
-{
-    bool zero = false;
-    int64_t D[7][7] = { 0 };
-
-    print_mat("DFA4-B", n, C);
-
-    for (int k = 0; k < n; k++) {
-        if (!pivot_mat(k, n, C)) {
-            zero = true;
-            break;
-        }
-
-        int B = 0;
-        int64_t M = (int64_t)C[k][k];
-        int64_t TM = abs(M);
-        int64_t HM = abs(M);
-
-        while (TM >>= 1) {
-            B++;
-        }
-
-        if (B != 0) {
-            HM >>= B - 1;
-
-            if (HM & 0x01) {
-                B++;
-            }
-        }
-
-        for (int i = 0; i < n; i++) {
-            int64_t L = (int64_t)C[i][k];
-
-            if (k == i) {
-                // row k is not modified
-                for (int j = 0; j < n + 1; j++) {
-                    D[k][j] = (int64_t)C[k][j];
-                }
-            } else {
-                // make C[i][k] zero
-                for (int j = 0; j < n + 1; j++) {
-                    D[i][j] = (int64_t)(C[i][j] - (L >> B) * C[k][j]);
+                    D[i][j] = (M < 0) ? (-D[i][j]) >> B : D[i][j] >> B;
                 }
             }
         }
