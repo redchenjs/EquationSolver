@@ -46,6 +46,10 @@ public:
     void method_dfa2s(int n, int scale);
     void method_dfa3(int n, int scale);
     void method_dfa3s(int n, int scale);
+    void method_dfa4(int n, int scale);
+    void method_dfa4s(int n, int scale);
+    void method_dfa5(int n, int scale);
+    void method_dfa5s(int n, int scale);
 };
 
 #endif // __EQUATIONSOLVER__

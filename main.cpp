@@ -77,6 +77,22 @@ int main(int argc, char **argv)
     solver->method_dfa3s(4, 8);
     solver->save_data(D, 4, 8);
 
+    solver->load_data(C, 4, 8);
+    solver->method_dfa4(4, 8);
+    solver->save_data(D, 4, 8);
+
+    solver->load_data(C, 4, 8);
+    solver->method_dfa4s(4, 8);
+    solver->save_data(D, 4, 8);
+
+    solver->load_data(C, 4, 8);
+    solver->method_dfa5(4, 8);
+    solver->save_data(D, 4, 8);
+
+    solver->load_data(C, 4, 8);
+    solver->method_dfa5s(4, 8);
+    solver->save_data(D, 4, 8);
+
     delete(solver);
 
     return 0;
