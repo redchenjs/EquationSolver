@@ -61,17 +61,8 @@ void EquationSolver::scale_mat(int64_t *_M, int64_t *_D, int64_t *_L, int64_t *_
     }
 
     if (DIFF_BITS >= 1) {
-        if (M_BITS >= D_BITS) {
-            *_M >>= DIFF_BITS;
-        } else {
-            *_D >>= DIFF_BITS;
-        }
-
-        if (L_BITS >= C_BITS) {
-            *_L >>= DIFF_BITS;
-        } else {
-            *_C >>= DIFF_BITS;
-        }
+        *_M = (*_M < 0) ? -(-*_M >> DIFF_BITS) : *_M >> DIFF_BITS;
+        *_L = (*_L < 0) ? -(-*_L >> DIFF_BITS) : *_L >> DIFF_BITS;
 
         *_B -= DIFF_BITS;
     }
