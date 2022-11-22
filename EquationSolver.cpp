@@ -23,7 +23,7 @@ using namespace std;
 #define LOG_COLOR_W       LOG_COLOR(LOG_COLOR_BROWN)
 #define LOG_COLOR_I       LOG_COLOR(LOG_COLOR_GREEN)
 
-#define COMP_MAX_BITS     61
+#define COMP_MAX_BITS     44
 
 void EquationSolver::set_debug(bool val)
 {
@@ -1015,14 +1015,6 @@ void EquationSolver::save_data(double dAffinePara[6], int iParaNum)
 void EquationSolver::save_data(double dAffinePara[6], int iParaNum, int frac)
 {
     for (int i = 0; i < iParaNum; i++) {
-        if (C[i][i] == 0) {
-            for (int i = 0; i < iParaNum; i++) {
-                dAffinePara[i] = 0;
-            }
-
-            return;
-        }
-
         int64_t dividend  = (int64_t)C[i][iParaNum];
         int64_t divisor   = (int64_t)C[i][i];
         int64_t divisor_f = (divisor < 0) ? -(-divisor >> frac) : divisor >> frac;
@@ -1030,25 +1022,32 @@ void EquationSolver::save_data(double dAffinePara[6], int iParaNum, int frac)
 
         int64_t *_M = &dividend;
         int     *_D = &frac;
-        int64_t *_L = &divisor;
-        int     *_C = &frac;
 
         uint8_t M_BITS = (*_M == 0) ? 0 : logb(*_M);
         uint8_t D_BITS = (*_D == 0) ? 0 : logb(*_D);
-        uint8_t L_BITS = (*_L == 0) ? 0 : logb(*_L);
-        uint8_t C_BITS = (*_C == 0) ? 0 : logb(*_C);
 
         int16_t MD_BITS = M_BITS + D_BITS;
-        int16_t LC_BITS = L_BITS - C_BITS;
 
         if (MD_BITS > COMP_MAX_BITS) {
-            if (LC_BITS >= 1) {
+            if (divisor_f) {
                 quotient = dividend / divisor_f;
             } else {
-                quotient = dividend;
+                for (int i = 0; i < iParaNum; i++) {
+                    dAffinePara[i] = 0;
+                }
+
+                return;
             }
         } else {
-            quotient = (dividend << frac) / divisor;
+            if (divisor) {
+                quotient = (dividend << frac) / divisor;
+            } else {
+                for (int i = 0; i < iParaNum; i++) {
+                    dAffinePara[i] = 0;
+                }
+
+                return;
+            }
         }
 
         dAffinePara[i] = quotient / pow(2.0, frac);
