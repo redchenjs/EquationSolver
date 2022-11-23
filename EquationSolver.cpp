@@ -42,10 +42,10 @@ void EquationSolver::scale_mat(int64_t *_M, int64_t *_D, int64_t *_L, int64_t *_
 {
     uint8_t DIFF_BITS = 0;
 
-    uint8_t M_BITS = (*_M == 0) ? 0 : logb(*_M);
-    uint8_t D_BITS = (*_D == 0) ? 0 : logb(*_D);
-    uint8_t L_BITS = (*_L == 0) ? 0 : logb(*_L);
-    uint8_t C_BITS = (*_C == 0) ? 0 : logb(*_C);
+    uint8_t M_BITS = (*_M == 0) ? 0 : (uint8_t)logb(*_M);
+    uint8_t D_BITS = (*_D == 0) ? 0 : (uint8_t)logb(*_D);
+    uint8_t L_BITS = (*_L == 0) ? 0 : (uint8_t)logb(*_L);
+    uint8_t C_BITS = (*_C == 0) ? 0 : (uint8_t)logb(*_C);
 
     uint8_t MD_BITS = M_BITS + D_BITS;
     uint8_t LC_BITS = L_BITS + C_BITS;
@@ -178,10 +178,10 @@ void EquationSolver::print_mat(const char *str, int n, const int64_t T[7][7])
             printf(LOG_COLOR_W "r%d ", p);
             printf(LOG_RESET_COLOR "|");
             for (int q = 0; q < n; q++) {
-                printf(LOG_COLOR_I "%7ld.0\t", T[p][q]);
+                printf(LOG_COLOR_I "%7" PRId64 ".0\t", T[p][q]);
             }
             printf(LOG_RESET_COLOR "|");
-            printf(LOG_COLOR_W "%7ld.0", T[p][n]);
+            printf(LOG_COLOR_W "%7" PRId64 ".0", T[p][n]);
             printf(LOG_RESET_COLOR "\n");
         }
     }
@@ -195,10 +195,10 @@ void EquationSolver::print_mat(const char *str, int n, const double T[7][7])
             printf(LOG_COLOR_W "r%d ", p);
             printf(LOG_RESET_COLOR "|");
             for (int q = 0; q < n; q++) {
-                printf(LOG_COLOR_I "%9.1lf\t", T[p][q]);
+                printf(LOG_COLOR_I "%9.1f\t", T[p][q]);
             }
             printf(LOG_RESET_COLOR "|");
-            printf(LOG_COLOR_W "%9.1lf", T[p][n]);
+            printf(LOG_COLOR_W "%9.1f", T[p][n]);
             printf(LOG_RESET_COLOR "\n");
         }
     }
@@ -212,10 +212,10 @@ void EquationSolver::print_mat(char idx, int k, int n, const int64_t T[7][7])
             printf(LOG_COLOR_W "r%d ", p);
             printf(LOG_RESET_COLOR "|");
             for (int q = 0; q < n; q++) {
-                printf(LOG_COLOR_I "%7ld.0\t", T[p][q]);
+                printf(LOG_COLOR_I "%7" PRId64 ".0\t", T[p][q]);
             }
             printf(LOG_RESET_COLOR "|");
-            printf(LOG_COLOR_W "%7ld.0", T[p][n]);
+            printf(LOG_COLOR_W "%7" PRId64 ".0", T[p][n]);
             printf(LOG_RESET_COLOR "\n");
         }
     }
@@ -229,10 +229,10 @@ void EquationSolver::print_mat(char idx, int k, int n, const double T[7][7])
             printf(LOG_COLOR_W "r%d ", p);
             printf(LOG_RESET_COLOR "|");
             for (int q = 0; q < n; q++) {
-                printf(LOG_COLOR_I "%9.1lf\t", T[p][q]);
+                printf(LOG_COLOR_I "%9.1f\t", T[p][q]);
             }
             printf(LOG_RESET_COLOR "|");
-            printf(LOG_COLOR_W "%9.1lf", T[p][n]);
+            printf(LOG_COLOR_W "%9.1f", T[p][n]);
             printf(LOG_RESET_COLOR "\n");
         }
     }
@@ -246,10 +246,10 @@ void EquationSolver::print_mat(char idx, int k, int m, int n, const int64_t T[7]
             printf(LOG_COLOR_W "r%d ", p);
             printf(LOG_RESET_COLOR "|");
             for (int q = 0; q < n; q++) {
-                printf(LOG_COLOR_E "%7ld.0\t", T[p][q]);
+                printf(LOG_COLOR_E "%7" PRId64 ".0\t", T[p][q]);
             }
             printf(LOG_RESET_COLOR "|");
-            printf(LOG_COLOR_W "%7ld.0", T[p][n]);
+            printf(LOG_COLOR_W "%7" PRId64 ".0", T[p][n]);
             printf(LOG_RESET_COLOR "\n");
         }
     }
@@ -263,10 +263,10 @@ void EquationSolver::print_mat(char idx, int k, int m, int n, const double T[7][
             printf(LOG_COLOR_W "r%d ", p);
             printf(LOG_RESET_COLOR "|");
             for (int q = 0; q < n; q++) {
-                printf(LOG_COLOR_E "%9.1lf\t", T[p][q]);
+                printf(LOG_COLOR_E "%9.1f\t", T[p][q]);
             }
             printf(LOG_RESET_COLOR "|");
-            printf(LOG_COLOR_W "%9.1lf", T[p][n]);
+            printf(LOG_COLOR_W "%9.1f", T[p][n]);
             printf(LOG_RESET_COLOR "\n");
         }
     }
@@ -277,7 +277,7 @@ void EquationSolver::print_res(int n, const double T[7][7])
     if (debug) {
         printf("------------------------------- RESULT -----------------------------------\n");
         for (int i = 0; i < n; i++) {
-            printf(LOG_COLOR_I "x%d = %9.1lf", i, T[i][n] / T[i][i]);
+            printf(LOG_COLOR_I "x%d = %9.1f", i, T[i][n] / T[i][i]);
             printf(LOG_RESET_COLOR "\n");
         }
     }
@@ -556,7 +556,7 @@ void EquationSolver::method_dfa2s(int n)
 
         for (int i = 0; i < n; i++) {
             for (int j = 0; j < n + 2; j++) {
-                T[i][j] = (double)D[i][j];
+                T[i][j] = D[i][j];
             }
         }
 
@@ -1023,8 +1023,8 @@ void EquationSolver::save_data(double dAffinePara[6], int iParaNum, int frac)
         int64_t *_M = &dividend;
         int     *_D = &frac;
 
-        uint8_t M_BITS = (*_M == 0) ? 0 : logb(*_M);
-        uint8_t D_BITS = (*_D == 0) ? 0 : logb(*_D);
+        uint8_t M_BITS = (*_M == 0) ? 0 : (uint8_t)logb(*_M);
+        uint8_t D_BITS = (*_D == 0) ? 0 : (uint8_t)logb(*_D);
 
         int16_t MD_BITS = M_BITS + D_BITS;
 
@@ -1057,6 +1057,6 @@ void EquationSolver::save_data(double dAffinePara[6], int iParaNum, int frac)
 void EquationSolver::print_data(double dAffinePara[6], int iParaNum)
 {
     for (int i = 0; i < iParaNum; i++) {
-        printf(LOG_COLOR_W "x%d = %9.1lf\n", i, dAffinePara[i]);
+        printf(LOG_COLOR_W "x%d = %9.1f\n", i, dAffinePara[i]);
     }
 }

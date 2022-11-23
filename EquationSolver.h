@@ -12,6 +12,7 @@
 #include <cstdio>
 #include <cstring>
 #include <cstdint>
+#include <cinttypes>
 #include <algorithm>
 
 class EquationSolver
