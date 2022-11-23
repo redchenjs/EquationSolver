@@ -871,13 +871,8 @@ void EquationSolver::method_dfa5(int n)
             break;
         }
 
-        uint8_t B = 0;
         int64_t M = T[k][k];
-        int64_t TM = abs(M);
-
-        while (TM >>= 1) {
-            B++;
-        }
+        uint8_t B = (M == 0) ? 0 : (uint8_t)logb(M);
 
         for (int i = 0; i < n; i++) {
             int64_t L = T[i][k];
@@ -937,13 +932,8 @@ void EquationSolver::method_dfa5s(int n)
             break;
         }
 
-        uint8_t B = 0;
         int64_t M = T[k][k];
-        int64_t TM = abs(M);
-
-        while (TM >>= 1) {
-            B++;
-        }
+        uint8_t B = (M == 0) ? 0 : (uint8_t)logb(M);
 
         for (int i = 0; i < n; i++) {
             int64_t L = T[i][k];
