@@ -5,8 +5,8 @@
  *      Author: Jack Chen <redchenjs@live.com>
  */
 
-#ifndef __EQUATIONSOLVER__
-#define __EQUATIONSOLVER__
+#ifndef __EQUATION_SOLVER__
+#define __EQUATION_SOLVER__
 
 #include <cmath>
 #include <cstdio>
@@ -56,13 +56,9 @@ public:
     void method_gja2(int n, int q);
     void method_dfa(int n);
     void method_dfa2(int n);
-    void method_dfa2s(int n);
     void method_dfa3(int n);
-    void method_dfa3s(int n);
     void method_dfa4(int n);
-    void method_dfa4s(int n);
     void method_dfa5(int n);
-    void method_dfa5s(int n);
 };
 
-#endif // __EQUATIONSOLVER__
+#endif // __EQUATION_SOLVER__

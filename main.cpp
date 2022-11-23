@@ -94,17 +94,7 @@ int main(int argc, char **argv)
     solver->print_data(D, 4);
 
     solver->load_data(C, 4);
-    solver->method_dfa2s(4);
-    solver->save_data(D, 4, 8);
-    solver->print_data(D, 4);
-
-    solver->load_data(C, 4);
     solver->method_dfa3(4);
-    solver->save_data(D, 4, 8);
-    solver->print_data(D, 4);
-
-    solver->load_data(C, 4);
-    solver->method_dfa3s(4);
     solver->save_data(D, 4, 8);
     solver->print_data(D, 4);
 
@@ -114,17 +104,7 @@ int main(int argc, char **argv)
     solver->print_data(D, 4);
 
     solver->load_data(C, 4);
-    solver->method_dfa4s(4);
-    solver->save_data(D, 4, 8);
-    solver->print_data(D, 4);
-
-    solver->load_data(C, 4);
     solver->method_dfa5(4);
-    solver->save_data(D, 4, 8);
-    solver->print_data(D, 4);
-
-    solver->load_data(C, 4);
-    solver->method_dfa5s(4);
     solver->save_data(D, 4, 8);
     solver->print_data(D, 4);
 

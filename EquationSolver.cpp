@@ -173,7 +173,7 @@ bool EquationSolver::pivot_mat(int k, int n, double T[7][7])
 void EquationSolver::print_mat(const char *str, int n, const int64_t T[7][7])
 {
     if (debug) {
-        printf("------------------------------- %-6s ----------------------------- n = %d\n", str, n);
+        printf("------------------------------- %-5s ------------------------------ n = %d\n", str, n);
         for (int p = 0; p < n; p++) {
             printf(LOG_COLOR_W "r%d ", p);
             printf(LOG_RESET_COLOR "|");
@@ -190,7 +190,7 @@ void EquationSolver::print_mat(const char *str, int n, const int64_t T[7][7])
 void EquationSolver::print_mat(const char *str, int n, const double T[7][7])
 {
     if (debug) {
-        printf("------------------------------- %-6s ----------------------------- n = %d\n", str, n);
+        printf("------------------------------- %-5s ------------------------------ n = %d\n", str, n);
         for (int p = 0; p < n; p++) {
             printf(LOG_COLOR_W "r%d ", p);
             printf(LOG_RESET_COLOR "|");
@@ -290,7 +290,7 @@ void EquationSolver::method_gja(int n)
     double D[7][7] = { 0.0 };
 
     load_mat(n, T);
-    print_mat("GJA", n, T);
+    print_mat(" GJA ", n, T);
 
     for (int k = 0; k < n; k++) {
         if (!pivot_mat(k, n, T)) {
@@ -298,20 +298,25 @@ void EquationSolver::method_gja(int n)
             break;
         }
 
-        double _M = T[k][k];
+        double M = T[k][k];
 
         for (int i = 0; i < n; i++) {
-            double _L = T[i][k];
+            double L = T[i][k];
 
             if (k == i) {
                 // make T[i][k] one
                 for (int j = 0; j < n + 1; j++) {
-                    D[k][j] = T[k][j] / _M;
+                    D[k][j] = T[k][j] / M;
                 }
             } else {
                 // make T[i][k] zero
                 for (int j = 0; j < n + 1; j++) {
-                    D[i][j] = T[i][j] - (_L / _M) * T[k][j];
+                    double _M = M;
+                    double _D = T[i][j];
+                    double _L = L;
+                    double _C = T[k][j];
+
+                    D[i][j] = _D - (_L / _M) * _C;
                 }
             }
         }
@@ -357,20 +362,25 @@ void EquationSolver::method_gja2(int n, int q)
             break;
         }
 
-        int64_t _M = F[k][k];
+        int64_t M = F[k][k];
 
         for (int i = 0; i < n; i++) {
-            int64_t _L = F[i][k] << q;
+            int64_t L = F[i][k] << q;
 
             if (k == i) {
                 // make T[i][k] one
                 for (int j = 0; j < n + 1; j++) {
-                    D[k][j] = (F[k][j] << q) / _M;
+                    D[k][j] = (F[k][j] << q) / M;
                 }
             } else {
                 // make T[i][k] zero
                 for (int j = 0; j < n + 1; j++) {
-                    D[i][j] = F[i][j] - (((_L / _M) * F[k][j]) >> q);
+                    int64_t _M = M;
+                    int64_t _D = F[i][j];
+                    int64_t _L = L;
+                    int64_t _C = F[k][j];
+
+                    D[i][j] = _D - (((_L / _M) * _C) >> q);
                 }
             }
         }
@@ -407,7 +417,7 @@ void EquationSolver::method_dfa(int n)
     int64_t D[7][7] = { 0 };
 
     load_mat(n, T);
-    print_mat("DFA", n, T);
+    print_mat(" DFA ", n, T);
 
     for (int k = 0; k < n; k++) {
         if (!pivot_mat(k, n, T)) {
@@ -463,7 +473,7 @@ void EquationSolver::method_dfa2(int n)
     int64_t D[7][7] = { 0 };
 
     load_mat(n, T);
-    print_mat("DFA2", n, T);
+    print_mat("DFA-2", n, T);
 
     for (int k = 0; k < n; k++) {
         if (!pivot_mat(k, n, T)) {
@@ -471,16 +481,11 @@ void EquationSolver::method_dfa2(int n)
             break;
         }
 
-        int B = 0;
-        int64_t _M = T[k][k];
-        int64_t TM = abs(_M);
-
-        while (TM >>= 1) {
-            B++;
-        }
+        int64_t M = T[k][k];
+        uint8_t B = (M == 0) ? 0 : (uint8_t)logb(M);
 
         for (int i = 0; i < n; i++) {
-            int64_t _L = T[i][k];
+            int64_t L = T[i][k];
 
             if (k == i) {
                 // row k is not modified
@@ -490,66 +495,14 @@ void EquationSolver::method_dfa2(int n)
             } else {
                 // make T[i][k] zero
                 for (int j = 0; j < n + 1; j++) {
-                    D[i][j] = (_M * T[i][j] - _L * T[k][j]);
-                    D[i][j] = D[i][j] >> B;
-                }
-            }
-        }
+                    int64_t _M = M;
+                    int64_t _D = T[i][j];
+                    int64_t _L = L;
+                    int64_t _C = T[k][j];
+                    uint8_t _B = B;
 
-        for (int i = 0; i < n; i++) {
-            for (int j = 0; j < n + 2; j++) {
-                T[i][j] = D[i][j];
-            }
-        }
-
-        print_mat('T', k, n, T);
-    }
-
-    save_mat(n, T);
-
-    if (zero) {
-        zero_mat(n);
-    }
-
-    print_res(n, C);
-}
-
-void EquationSolver::method_dfa2s(int n)
-{
-    bool zero = false;
-    int64_t T[7][7] = { 0 };
-    int64_t D[7][7] = { 0 };
-
-    load_mat(n, T);
-    print_mat("DFA2S", n, T);
-
-    for (int k = 0; k < n; k++) {
-        if (!pivot_mat(k, n, T)) {
-            zero = true;
-            break;
-        }
-
-        int B = 0;
-        int64_t _M = T[k][k];
-        int64_t TM = abs(_M);
-
-        while (TM >>= 1) {
-            B++;
-        }
-
-        for (int i = 0; i < n; i++) {
-            int64_t _L = T[i][k];
-
-            if (k == i) {
-                // row k is not modified
-                for (int j = 0; j < n + 1; j++) {
-                    D[k][j] = T[k][j];
-                }
-            } else {
-                // make T[i][k] zero
-                for (int j = 0; j < n + 1; j++) {
-                    D[i][j] = (_M * T[i][j] - _L * T[k][j]);
-                    D[i][j] = (_M < 0) ? (-D[i][j]) >> B : D[i][j] >> B;
+                    D[i][j] = (_M * _D - _L * _C);
+                    D[i][j] = (D[i][j] < 0) ? -(-D[i][j] >> _B) : D[i][j] >> _B;
                 }
             }
         }
@@ -579,7 +532,7 @@ void EquationSolver::method_dfa3(int n)
     int64_t D[7][7] = { 0 };
 
     load_mat(n, T);
-    print_mat("DFA3", n, T);
+    print_mat("DFA-3", n, T);
 
     for (int k = 0; k < n; k++) {
         if (!pivot_mat(k, n, T)) {
@@ -587,25 +540,16 @@ void EquationSolver::method_dfa3(int n)
             break;
         }
 
-        int B = 0;
-        int64_t _M = T[k][k];
-        int64_t TM = abs(_M);
-        int64_t HM = abs(_M);
+        int64_t M = T[k][k];
+        uint8_t B = (M == 0) ? 0 : (uint8_t)logb(M);
 
-        while (TM >>= 1) {
+        int64_t TM = abs(M) >> (B - 1);
+        if ((B >= 1) && (TM & 0x01)) {
             B++;
         }
 
-        if (B != 0) {
-            HM >>= B - 1;
-
-            if (HM & 0x01) {
-                B++;
-            }
-        }
-
         for (int i = 0; i < n; i++) {
-            int64_t _L = T[i][k];
+            int64_t L = T[i][k];
 
             if (k == i) {
                 // row k is not modified
@@ -615,75 +559,14 @@ void EquationSolver::method_dfa3(int n)
             } else {
                 // make T[i][k] zero
                 for (int j = 0; j < n + 1; j++) {
-                    D[i][j] = (_M * T[i][j] - _L * T[k][j]);
-                    D[i][j] = D[i][j] >> B;
-                }
-            }
-        }
+                    int64_t _M = M;
+                    int64_t _D = T[i][j];
+                    int64_t _L = L;
+                    int64_t _C = T[k][j];
+                    uint8_t _B = B;
 
-        for (int i = 0; i < n; i++) {
-            for (int j = 0; j < n + 2; j++) {
-                T[i][j] = D[i][j];
-            }
-        }
-
-        print_mat('T', k, n, T);
-    }
-
-    save_mat(n, T);
-
-    if (zero) {
-        zero_mat(n);
-    }
-
-    print_res(n, C);
-}
-
-void EquationSolver::method_dfa3s(int n)
-{
-    bool zero = false;
-    int64_t T[7][7] = { 0 };
-    int64_t D[7][7] = { 0 };
-
-    load_mat(n, T);
-    print_mat("DFA3S", n, T);
-
-    for (int k = 0; k < n; k++) {
-        if (!pivot_mat(k, n, T)) {
-            zero = true;
-            break;
-        }
-
-        int B = 0;
-        int64_t _M = T[k][k];
-        int64_t TM = abs(_M);
-        int64_t HM = abs(_M);
-
-        while (TM >>= 1) {
-            B++;
-        }
-
-        if (B != 0) {
-            HM >>= B - 1;
-
-            if (HM & 0x01) {
-                B++;
-            }
-        }
-
-        for (int i = 0; i < n; i++) {
-            int64_t _L = T[i][k];
-
-            if (k == i) {
-                // row k is not modified
-                for (int j = 0; j < n + 1; j++) {
-                    D[k][j] = T[k][j];
-                }
-            } else {
-                // make T[i][k] zero
-                for (int j = 0; j < n + 1; j++) {
-                    D[i][j] = (_M * T[i][j] - _L * T[k][j]);
-                    D[i][j] = (_M < 0) ? (-D[i][j]) >> B : D[i][j] >> B;
+                    D[i][j] = (_M * _D - _L * _C);
+                    D[i][j] = (D[i][j] < 0) ? -(-D[i][j] >> _B) : D[i][j] >> _B;
                 }
             }
         }
@@ -713,7 +596,7 @@ void EquationSolver::method_dfa4(int n)
     int64_t D[7][7] = { 0 };
 
     load_mat(n, T);
-    print_mat("DFA4", n, T);
+    print_mat("DFA-4", n, T);
 
     for (int k = 0; k < n; k++) {
         if (!pivot_mat(k, n, T)) {
@@ -721,96 +604,12 @@ void EquationSolver::method_dfa4(int n)
             break;
         }
 
-        uint8_t B = 0;
         int64_t M = T[k][k];
-        int64_t TM = abs(M);
-        int64_t HM = abs(M);
+        uint8_t B = (M == 0) ? 0 : (uint8_t)logb(M);
 
-        while (TM >>= 1) {
+        int64_t TM = abs(M) >> (B - 1);
+        if ((B >= 1) && (TM & 0x01)) {
             B++;
-        }
-
-        if (B >= 1) {
-            HM >>= B - 1;
-
-            if (HM & 0x01) {
-                B++;
-            }
-        }
-
-        for (int i = 0; i < n; i++) {
-            int64_t L = T[i][k];
-
-            if (k == i) {
-                // row k is not modified
-                for (int j = 0; j < n + 1; j++) {
-                    D[k][j] = T[k][j];
-                }
-            } else {
-                // make T[i][k] zero
-                for (int j = 0; j < n + 1; j++) {
-                    int64_t _M = M;
-                    int64_t _D = T[i][j];
-                    int64_t _L = L;
-                    int64_t _C = T[k][j];
-                    uint8_t _B = B;
-
-                    scale_mat(&_M, &_D, &_L, &_C, &_B);
-
-                    D[i][j] = (_M * _D - _L * _C);
-                    D[i][j] = (D[i][j] < 0) ? -(-D[i][j] >> _B) : D[i][j] >> _B;
-                }
-            }
-        }
-
-        for (int i = 0; i < n; i++) {
-            for (int j = 0; j < n + 2; j++) {
-                T[i][j] = D[i][j];
-            }
-        }
-
-        print_mat('T', k, n, T);
-    }
-
-    save_mat(n, T);
-
-    if (zero) {
-        zero_mat(n);
-    }
-
-    print_res(n, C);
-}
-
-void EquationSolver::method_dfa4s(int n)
-{
-    bool zero = false;
-    int64_t T[7][7] = { 0 };
-    int64_t D[7][7] = { 0 };
-
-    load_mat(n, T);
-    print_mat("DFA4S", n, T);
-
-    for (int k = 0; k < n; k++) {
-        if (!pivot_mat(k, n, T)) {
-            zero = true;
-            break;
-        }
-
-        uint8_t B = 0;
-        int64_t M = T[k][k];
-        int64_t TM = abs(M);
-        int64_t HM = abs(M);
-
-        while (TM >>= 1) {
-            B++;
-        }
-
-        if (B >= 1) {
-            HM >>= B - 1;
-
-            if (HM & 0x01) {
-                B++;
-            }
         }
 
         for (int i = 0; i < n; i++) {
@@ -863,68 +662,7 @@ void EquationSolver::method_dfa5(int n)
     int64_t D[7][7] = { 0 };
 
     load_mat(n, T);
-    print_mat("DFA5", n, T);
-
-    for (int k = 0; k < n; k++) {
-        if (!pivot_mat(k, n, T)) {
-            zero = true;
-            break;
-        }
-
-        int64_t M = T[k][k];
-        uint8_t B = (M == 0) ? 0 : (uint8_t)logb(M);
-
-        for (int i = 0; i < n; i++) {
-            int64_t L = T[i][k];
-
-            if (k == i) {
-                // row k is not modified
-                for (int j = 0; j < n + 1; j++) {
-                    D[k][j] = T[k][j];
-                }
-            } else {
-                // make T[i][k] zero
-                for (int j = 0; j < n + 1; j++) {
-                    int64_t _M = M;
-                    int64_t _D = T[i][j];
-                    int64_t _L = L;
-                    int64_t _C = T[k][j];
-                    uint8_t _B = B;
-
-                    scale_mat(&_M, &_D, &_L, &_C, &_B);
-
-                    D[i][j] = (_M * _D - _L * _C);
-                    D[i][j] = (D[i][j] < 0) ? -(-D[i][j] >> _B) : D[i][j] >> _B;
-                }
-            }
-        }
-
-        for (int i = 0; i < n; i++) {
-            for (int j = 0; j < n + 2; j++) {
-                T[i][j] = D[i][j];
-            }
-        }
-
-        print_mat('T', k, n, T);
-    }
-
-    save_mat(n, T);
-
-    if (zero) {
-        zero_mat(n);
-    }
-
-    print_res(n, C);
-}
-
-void EquationSolver::method_dfa5s(int n)
-{
-    bool zero = false;
-    int64_t T[7][7] = { 0 };
-    int64_t D[7][7] = { 0 };
-
-    load_mat(n, T);
-    print_mat("DFA5S", n, T);
+    print_mat("DFA-5", n, T);
 
     for (int k = 0; k < n; k++) {
         if (!pivot_mat(k, n, T)) {
@@ -1010,11 +748,11 @@ void EquationSolver::save_data(double dAffinePara[6], int iParaNum, int frac)
         int64_t divisor_f = (divisor < 0) ? -(-divisor >> frac) : divisor >> frac;
         int64_t quotient = 0;
 
-        int64_t *_M = &dividend;
-        int     *_D = &frac;
+        int64_t _M = dividend;
+        int     _D = frac;
 
-        uint8_t M_BITS = (*_M == 0) ? 0 : (uint8_t)logb(*_M);
-        uint8_t D_BITS = (*_D == 0) ? 0 : (uint8_t)logb(*_D);
+        uint8_t M_BITS = (_M == 0) ? 0 : (uint8_t)logb(_M);
+        uint8_t D_BITS = (_D == 0) ? 0 : (uint8_t)logb(_D);
 
         int16_t MD_BITS = M_BITS + D_BITS;
 
