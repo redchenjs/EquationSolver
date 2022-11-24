@@ -86,6 +86,15 @@ void EquationSolver::load_mat(int n, double T[7][7])
     }
 }
 
+void EquationSolver::load_mat(int n, float T[7][7])
+{
+    for (int p = 0; p < n; p++) {
+        for (int q = 0; q < n + 1; q++) {
+            T[p][q] = (float)C[p][q];
+        }
+    }
+}
+
 void EquationSolver::save_mat(int n, const int64_t T[7][7])
 {
     for (int p = 0; p < n; p++) {
@@ -96,6 +105,15 @@ void EquationSolver::save_mat(int n, const int64_t T[7][7])
 }
 
 void EquationSolver::save_mat(int n, const double T[7][7])
+{
+    for (int p = 0; p < n; p++) {
+        for (int q = 0; q < n + 1; q++) {
+            C[p][q] = (double)T[p][q];
+        }
+    }
+}
+
+void EquationSolver::save_mat(int n, const float T[7][7])
 {
     for (int p = 0; p < n; p++) {
         for (int q = 0; q < n + 1; q++) {
@@ -170,6 +188,39 @@ bool EquationSolver::pivot_mat(int k, int n, double T[7][7])
     return true;
 }
 
+bool EquationSolver::pivot_mat(int k, int n, float T[7][7])
+{
+    // find column max
+    int m = k;
+    float t = abs(T[k][k]);
+
+    for (int i = k + 1; i < n; i++) {
+        if (abs(T[i][k]) > t) {
+            t = abs(T[i][k]);
+            m = i;
+        }
+    }
+
+    // swap rows k and m
+    if (m != k) {
+        print_mat('A', k, m, n, T);
+
+        for (int j = 0; j < n + 1; j++) {
+            T[6][j] = T[k][j];
+            T[k][j] = T[m][j];
+            T[m][j] = T[6][j];
+        }
+
+        print_mat('B', k, m, n, T);
+    }
+
+    if (T[k][k] == 0.) {
+        return false;
+    }
+
+    return true;
+}
+
 void EquationSolver::print_mat(const char *str, int n, const int64_t T[7][7])
 {
     if (debug) {
@@ -188,6 +239,23 @@ void EquationSolver::print_mat(const char *str, int n, const int64_t T[7][7])
 }
 
 void EquationSolver::print_mat(const char *str, int n, const double T[7][7])
+{
+    if (debug) {
+        printf("------------------------------- %-5s ------------------------------ n = %d\n", str, n);
+        for (int p = 0; p < n; p++) {
+            printf(LOG_COLOR_W "r%d ", p);
+            printf(LOG_RESET_COLOR "|");
+            for (int q = 0; q < n; q++) {
+                printf(LOG_COLOR_I "%9.1f\t", T[p][q]);
+            }
+            printf(LOG_RESET_COLOR "|");
+            printf(LOG_COLOR_W "%9.1f", T[p][n]);
+            printf(LOG_RESET_COLOR "\n");
+        }
+    }
+}
+
+void EquationSolver::print_mat(const char *str, int n, const float T[7][7])
 {
     if (debug) {
         printf("------------------------------- %-5s ------------------------------ n = %d\n", str, n);
@@ -238,6 +306,23 @@ void EquationSolver::print_mat(char idx, int k, int n, const double T[7][7])
     }
 }
 
+void EquationSolver::print_mat(char idx, int k, int n, const float T[7][7])
+{
+    if (debug) {
+        printf("------------------------------- MATRIX %c --------------------- n = %d k = %d\n", idx, n, k);
+        for (int p = 0; p < n; p++) {
+            printf(LOG_COLOR_W "r%d ", p);
+            printf(LOG_RESET_COLOR "|");
+            for (int q = 0; q < n; q++) {
+                printf(LOG_COLOR_I "%9.1f\t", T[p][q]);
+            }
+            printf(LOG_RESET_COLOR "|");
+            printf(LOG_COLOR_W "%9.1f", T[p][n]);
+            printf(LOG_RESET_COLOR "\n");
+        }
+    }
+}
+
 void EquationSolver::print_mat(char idx, int k, int m, int n, const int64_t T[7][7])
 {
     if (debug) {
@@ -256,6 +341,23 @@ void EquationSolver::print_mat(char idx, int k, int m, int n, const int64_t T[7]
 }
 
 void EquationSolver::print_mat(char idx, int k, int m, int n, const double T[7][7])
+{
+    if (debug) {
+        printf("------------------------------- MATRIX %c --------------- n = %d k = %d m = %d\n", idx, n, k, m);
+        for (int p = 0; p < n; p++) {
+            printf(LOG_COLOR_W "r%d ", p);
+            printf(LOG_RESET_COLOR "|");
+            for (int q = 0; q < n; q++) {
+                printf(LOG_COLOR_E "%9.1f\t", T[p][q]);
+            }
+            printf(LOG_RESET_COLOR "|");
+            printf(LOG_COLOR_W "%9.1f", T[p][n]);
+            printf(LOG_RESET_COLOR "\n");
+        }
+    }
+}
+
+void EquationSolver::print_mat(char idx, int k, int m, int n, const float T[7][7])
 {
     if (debug) {
         printf("------------------------------- MATRIX %c --------------- n = %d k = %d m = %d\n", idx, n, k, m);
@@ -399,6 +501,62 @@ void EquationSolver::method_gja2(int n, int q)
         for (int i = 0; i < n + 1; i++) {
             T[row][i] = F[row][i] >> q;
         }
+    }
+
+    save_mat(n, T);
+
+    if (zero) {
+        zero_mat(n);
+    }
+
+    print_res(n, C);
+}
+
+void EquationSolver::method_gja3(int n)
+{
+    bool zero = false;
+    float T[7][7] = { 0.0 };
+    float D[7][7] = { 0.0 };
+
+    load_mat(n, T);
+    print_mat("GJA-3", n, T);
+
+    for (int k = 0; k < n; k++) {
+        if (!pivot_mat(k, n, T)) {
+            zero = true;
+            break;
+        }
+
+        float M = T[k][k];
+
+        for (int i = 0; i < n; i++) {
+            float L = T[i][k];
+
+            if (k == i) {
+                // make T[i][k] one
+                for (int j = 0; j < n + 1; j++) {
+                    D[k][j] = T[k][j] / M;
+                }
+            } else {
+                // make T[i][k] zero
+                for (int j = 0; j < n + 1; j++) {
+                    float _M = M;
+                    float _D = T[i][j];
+                    float _L = L;
+                    float _C = T[k][j];
+
+                    D[i][j] = _D - (_L / _M) * _C;
+                }
+            }
+        }
+
+        for (int i = 0; i < n; i++) {
+            for (int j = 0; j < n + 1; j++) {
+                T[i][j] = D[i][j];
+            }
+        }
+
+        print_mat('T', k, n, T);
     }
 
     save_mat(n, T);

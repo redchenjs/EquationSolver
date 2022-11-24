@@ -79,8 +79,13 @@ int main(int argc, char **argv)
     solver->print_data(D, 4);
 
     solver->load_data(C, 4);
-    solver->method_gja2(4, 4);
+    solver->method_gja2(4, 8);
     solver->save_data(D, 4, 8);
+    solver->print_data(D, 4);
+
+    solver->load_data(C, 4);
+    solver->method_gja3(4);
+    solver->save_data(D, 4);
     solver->print_data(D, 4);
 
     solver->load_data(C, 4);
