@@ -61,8 +61,8 @@ void EquationSolver::scale_mat(int64_t *_M, int64_t *_D, int64_t *_L, int64_t *_
     }
 
     if (DIFF_BITS >= 1) {
-        *_M = (*_M < 0) ? -(-*_M >> DIFF_BITS) : *_M >> DIFF_BITS;
-        *_L = (*_L < 0) ? -(-*_L >> DIFF_BITS) : *_L >> DIFF_BITS;
+        *_M = *_M >> DIFF_BITS;
+        *_L = *_L >> DIFF_BITS;
 
         *_B -= DIFF_BITS;
     }
@@ -850,8 +850,7 @@ void EquationSolver::method_dfa5(int n)
 
                     scale_mat(&_M, &_D, &_L, &_C, &_B);
 
-                    D[i][j] = (_M * _D - _L * _C);
-                    D[i][j] = (D[i][j] < 0) ? -(-D[i][j] >> _B) : D[i][j] >> _B;
+                    D[i][j] = (_M * _D - _L * _C) >> _B;
                 }
             }
         }
@@ -903,7 +902,7 @@ void EquationSolver::save_data(double dAffinePara[6], int iParaNum, int frac)
     for (int i = 0; i < iParaNum; i++) {
         int64_t dividend  = (int64_t)C[i][iParaNum];
         int64_t divisor   = (int64_t)C[i][i];
-        int64_t divisor_f = (divisor < 0) ? -(-divisor >> frac) : divisor >> frac;
+        int64_t divisor_f = divisor >> frac;
         int64_t quotient = 0;
 
         int64_t _M = dividend;
