@@ -385,6 +385,62 @@ void EquationSolver::print_res(int n, const double T[7][7])
     }
 }
 
+void EquationSolver::method_gem(int n)
+{
+    bool zero = false;
+    double T[7][7] = { 0.0 };
+    double D[7][7] = { 0.0 };
+
+    load_mat(n, T);
+    print_mat(" GEM ", n, T);
+
+    for (int k = 0; k < n; k++) {
+        if (!pivot_mat(k, n, T)) {
+            zero = true;
+            break;
+        }
+
+        double M = T[k][k];
+
+        for (int i = k; i < n; i++) {
+            double L = T[i][k];
+
+            if (k == i) {
+                // make T[i][k] one
+                for (int j = k; j < n + 1; j++) {
+                    D[k][j] = T[k][j] / M;
+                }
+            } else {
+                // make T[i][k] zero
+                for (int j = k; j < n + 1; j++) {
+                    double _M = M;
+                    double _D = T[i][j];
+                    double _L = L;
+                    double _C = T[k][j];
+
+                    D[i][j] = _D - (_L / _M) * _C;
+                }
+            }
+        }
+
+        for (int i = 0; i < n; i++) {
+            for (int j = 0; j < n + 1; j++) {
+                T[i][j] = D[i][j];
+            }
+        }
+
+        print_mat('T', k, n, T);
+    }
+
+    save_mat(n, T);
+
+    if (zero) {
+        zero_mat(n);
+    }
+
+    print_res(n, C);
+}
+
 void EquationSolver::method_gja(int n)
 {
     bool zero = false;
@@ -879,6 +935,21 @@ void EquationSolver::load_data(const int64_t i64EqualCoeff[7][7], int iParaNum)
         for (int i = 0; i < iParaNum + 1; i++) {
             C[row][i] = (double)i64EqualCoeff[row + 1][i];
         }
+    }
+}
+
+void EquationSolver::save_data_gem(double dAffinePara[6], int iParaNum)
+{
+    dAffinePara[iParaNum - 1] = C[iParaNum - 1][iParaNum] / C[iParaNum - 1][iParaNum - 1];
+
+    for (int i = iParaNum - 2; i >= 0; i--) {
+        double temp = 0;
+
+        for (int j = i + 1; j < iParaNum; j++) {
+            temp += C[i][j] * dAffinePara[j];
+        }
+
+        dAffinePara[i] = (C[i][iParaNum] - temp) / C[i][i];
     }
 }
 

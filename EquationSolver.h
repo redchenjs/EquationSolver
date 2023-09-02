@@ -55,11 +55,13 @@ public:
 
     void load_data(const int64_t i64EqualCoeff[7][7], int iParaNum);
 
+    void save_data_gem(double dAffinePara[6], int iParaNum);
     void save_data(double dAffinePara[6], int iParaNum);
     void save_data(double dAffinePara[6], int iParaNum, int frac);
 
     void print_data(double dAffinePara[6], int iParaNum);
 
+    void method_gem(int n);
     void method_gja(int n);
     void method_gja2(int n, int q);
     void method_gja3(int n);

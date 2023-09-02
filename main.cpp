@@ -74,6 +74,11 @@ int main(int argc, char **argv)
     solver->set_debug(true);
 
     solver->load_data(C, 4);
+    solver->method_gem(4);
+    solver->save_data_gem(D, 4);
+    solver->print_data(D, 4);
+
+    solver->load_data(C, 4);
     solver->method_gja(4);
     solver->save_data(D, 4);
     solver->print_data(D, 4);
