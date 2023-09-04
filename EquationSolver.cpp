@@ -24,6 +24,7 @@ using namespace std;
 #define LOG_COLOR_I       LOG_COLOR(LOG_COLOR_GREEN)
 
 #define COMP_MAX_BITS     44
+#define COMP_DIV_BITS     64
 
 void EquationSolver::set_debug(bool val)
 {
@@ -976,15 +977,15 @@ void EquationSolver::save_data(double dAffinePara[6], int iParaNum, int frac)
         int64_t divisor_f = divisor >> frac;
         int64_t quotient = 0;
 
-        int64_t _M = dividend;
-        int     _D = frac;
+        int64_t _D = dividend;
+        int     _F = frac;
 
-        uint8_t M_BITS = (_M == 0) ? 0 : (uint8_t)logb(_M);
         uint8_t D_BITS = (_D == 0) ? 0 : (uint8_t)logb(_D);
+        uint8_t F_BITS = (_F == 0) ? 0 : (uint8_t)logb(_F);
 
-        int16_t MD_BITS = M_BITS + D_BITS;
+        int16_t DF_BITS = D_BITS + F_BITS;
 
-        if (MD_BITS > COMP_MAX_BITS) {
+        if (DF_BITS >= COMP_DIV_BITS) {
             if (divisor_f) {
                 quotient = dividend / divisor_f;
             } else {
